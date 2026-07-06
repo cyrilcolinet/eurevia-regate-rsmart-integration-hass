@@ -28,12 +28,31 @@ def test_thermostat_with_known_keys_is_supported():
     assert profile_needs_telemetry(profile, unknown) is False
 
 
-def test_system_device_needs_telemetry():
-    profile = classify_hvac_payload("0", {"Heating_Mode": 1, "PAC": True})
+def test_system_device_skips_telemetry():
+    profile = classify_hvac_payload("0", {"Heating_Mode": 1, "PAC": True, "Mode": 0})
     unknown = unknown_keys_for_profile(profile)
 
-    assert profile_needs_telemetry(profile, unknown) is True
+    assert unknown == []
+    assert profile_needs_telemetry(profile, unknown) is False
     assert profile_supported_by_integration(profile, unknown) is False
+
+
+def test_thermostat_with_config_keys_skips_telemetry():
+    profile = classify_hvac_payload(
+        "101",
+        {
+            "Th_ID": "abc123",
+            "Mode": 1,
+            "Tmp": 21.0,
+            "Stp_Comf": 22.0,
+            "Stp_Comf_Def": 20,
+            "Window": False,
+        },
+    )
+    unknown = unknown_keys_for_profile(profile)
+
+    assert unknown == []
+    assert profile_needs_telemetry(profile, unknown) is False
 
 
 def test_unknown_mqtt_key_triggers_telemetry():

@@ -103,11 +103,13 @@ def test_telemetry_flags_from_snapshot(hvac_raw):
     profiles_by_id = {profile.device_id: profile for profile in discovery.profiles.values()}
 
     system_unknown = unknown_keys_for_profile(profiles_by_id["0"])
-    assert profile_needs_telemetry(profiles_by_id["0"], system_unknown) is True
+    assert profile_needs_telemetry(profiles_by_id["0"], system_unknown) is False
 
     sejour_unknown = unknown_keys_for_profile(profiles_by_id["101"])
     assert profile_needs_telemetry(profiles_by_id["101"], sejour_unknown) is False
 
     scheduler_profile = profiles_by_id["30"]
     assert scheduler_profile.roles & HvacRole.SCHEDULER
-    assert profile_needs_telemetry(scheduler_profile, unknown_keys_for_profile(scheduler_profile))
+    assert profile_needs_telemetry(
+        scheduler_profile, unknown_keys_for_profile(scheduler_profile)
+    ) is False

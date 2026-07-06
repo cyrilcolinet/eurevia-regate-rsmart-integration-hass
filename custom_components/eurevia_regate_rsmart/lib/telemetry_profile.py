@@ -56,6 +56,41 @@ EXTRA_KNOWN_TERMINAL_KEYS = frozenset(
 
 EXTRA_KNOWN_ACTUATOR_KEYS = frozenset({"Pos_Min", "Pos_Max", "Pos_Cmd"})
 
+EXTRA_KNOWN_SYSTEM_KEYS = frozenset(
+    {
+        "Comm",
+        "Heating_Mode",
+        "Mode",
+        "Mode_FB",
+        "PAC",
+    }
+)
+
+EXTRA_KNOWN_ZONE_CONFIG_KEYS = frozenset(
+    {
+        "Channels",
+        "Child",
+        "DB_Cool",
+        "DB_Heat",
+        "Detection_Control_Mode",
+        "Favorite",
+        "ID",
+        "Mode_Override",
+        "No_Operating_Auth_mode",
+        "Stp_Comf_Def",
+        "Stp_Comf_Def_Summer",
+        "Stp_Comf_Def_Winter",
+        "Stp_Comf_Max_Summer",
+        "Stp_Comf_Max_Winter",
+        "Stp_Comf_Min_Summer",
+        "Stp_Comf_Min_Winter",
+        "Window_Control_Mode",
+    }
+)
+
+# Present on every install — tracked on roadmap, not actionable telemetry.
+TELEMETRY_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER
+
 UNIMPLEMENTED_ROLES = HvacRole.ACTUATOR | HvacRole.SYSTEM | HvacRole.SCHEDULER
 IMPLEMENTED_ROLES = HvacRole.THERMOSTAT | HvacRole.TERMINAL | HvacRole.PURIFIER
 
@@ -85,6 +120,8 @@ def known_mqtt_keys() -> frozenset[str]:
     keys.update(EXTRA_KNOWN_ZONE_KEYS)
     keys.update(EXTRA_KNOWN_TERMINAL_KEYS)
     keys.update(EXTRA_KNOWN_ACTUATOR_KEYS)
+    keys.update(EXTRA_KNOWN_SYSTEM_KEYS)
+    keys.update(EXTRA_KNOWN_ZONE_CONFIG_KEYS)
     return frozenset(keys)
 
 
@@ -151,13 +188,15 @@ def profile_needs_telemetry(
     profile: HvacDeviceProfile,
     unknown_keys: list[str],
 ) -> bool:
-    if unknown_keys:
-        return True
     if profile.roles == HvacRole.NONE:
         return False
+    if profile.roles & TELEMETRY_SKIP_ROLES and not (profile.roles & ~TELEMETRY_SKIP_ROLES):
+        return False
+    if unknown_keys:
+        return True
     if unimplemented_roles_for_telemetry(profile.roles):
         return True
-    return bool(not profile.roles & IMPLEMENTED_ROLES)
+    return bool(not (profile.roles & IMPLEMENTED_ROLES))
 
 
 def telemetry_reason(
