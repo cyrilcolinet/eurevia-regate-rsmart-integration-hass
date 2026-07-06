@@ -148,9 +148,7 @@ def profile_supported_by_integration(
         return False
     if not (profile.roles & IMPLEMENTED_ROLES):
         return False
-    if unimplemented_roles_for_telemetry(profile.roles):
-        return False
-    return True
+    return not unimplemented_roles_for_telemetry(profile.roles)
 
 
 def profile_needs_telemetry(
@@ -163,9 +161,7 @@ def profile_needs_telemetry(
         return False
     if unimplemented_roles_for_telemetry(profile.roles):
         return True
-    if not (profile.roles & IMPLEMENTED_ROLES):
-        return True
-    return False
+    return bool(not profile.roles & IMPLEMENTED_ROLES)
 
 
 def telemetry_reason(

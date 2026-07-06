@@ -91,7 +91,6 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             host = connection[CONF_HOST]
             port = int(connection[CONF_PORT])
-            prefix = connection[CONF_PREFIX]
             return self.async_create_entry(
                 title=f"reGATE {host}:{port}",
                 data=connection,
