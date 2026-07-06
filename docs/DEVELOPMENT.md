@@ -1,5 +1,7 @@
 # Development
 
+> **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](DISCLAIMER.md)
+
 Technical documentation for contributing, testing, and releasing the integration.
 
 ## Prerequisites
@@ -105,7 +107,7 @@ custom_components/eurevia_regate_rsmart/
     └── conversion.py
 ```
 
-Platforms registered in `__init__.py` → `PLATFORMS`: `binary_sensor`, `climate`, `fan`, `sensor`.
+Platforms registered in `__init__.py` → `PLATFORMS`: `binary_sensor`, `climate`, `fan`, `number`, `sensor`.
 
 ### Import conventions
 

@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SIGNAL_ZONE_STATE_UPDATED, SIGNAL_ZONES_UPDATED
+from .const import DOMAIN, SIGNAL_DISCOVERY_UPDATED, SIGNAL_ZONE_STATE_UPDATED, SIGNAL_ZONES_UPDATED
 from .entity import EureviaRegateEntity, zone_device_info
 
 
@@ -27,12 +27,16 @@ async def async_setup_entry(
         return list((store.get("zone_cfg") or {}).keys())
 
     def build_entities() -> list[BinarySensorEntity]:
+        discovery = store.get("discovery")
+        zone_field_keys = discovery.zone_keys if discovery else frozenset()
         entities: list[BinarySensorEntity] = []
         for zone_key in zone_keys():
-            for suffix, entity_cls in (
-                ("window", EureviaRegateZoneWindow),
-                ("presence", EureviaRegateZonePresence),
+            for suffix, entity_cls, mqtt_key in (
+                ("window", EureviaRegateZoneWindow, "Window"),
+                ("presence", EureviaRegateZonePresence, "Detection"),
             ):
+                if mqtt_key not in zone_field_keys:
+                    continue
                 key = f"{suffix}:{zone_key}"
                 if key in added:
                     continue
@@ -48,6 +52,11 @@ async def async_setup_entry(
 
     entry.async_on_unload(
         async_dispatcher_connect(hass, f"{SIGNAL_ZONES_UPDATED}_{entry.entry_id}", _zones_updated)
+    )
+    entry.async_on_unload(
+        async_dispatcher_connect(
+            hass, f"{SIGNAL_DISCOVERY_UPDATED}_{entry.entry_id}", _zones_updated
+        )
     )
 
 

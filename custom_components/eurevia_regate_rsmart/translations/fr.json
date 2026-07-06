@@ -9,6 +9,13 @@
           "port": "Port",
           "prefix": "Préfixe MQTT"
         }
+      },
+      "telemetry": {
+        "title": "Aidez à étendre le support reGATE",
+        "description": "Opt-in facultatif : lorsqu'un profil MQTT nouveau ou non supporté est détecté sur votre installation, Home Assistant peut vous notifier avec un **lien GitHub pré-rempli** (rôles et noms de clés MQTT anonymisés).\n\nRien n'est envoyé automatiquement — vous décidez d'ouvrir le lien ou non. Cela aide à prioriser actionneurs, planificateurs et nouvelles clés MQTT.\n\nModifiable à tout moment via **reGATE → Configurer**.",
+        "data": {
+          "telemetry": "Me notifier pour les appareils nouveaux ou non supportés (recommandé)"
+        }
       }
     },
     "error": {
@@ -23,7 +30,8 @@
         "title": "Zones",
         "description": "Sélectionnez les zones climatiques à exposer dans Home Assistant.",
         "data": {
-          "selected_zone_ids": "Zones"
+          "selected_zone_ids": "Zones",
+          "telemetry": "Me notifier pour les appareils nouveaux ou non supportés (anonymisé ; lien GitHub pré-rempli uniquement — rien n'est envoyé sans votre clic)"
         }
       },
       "zones": {
@@ -121,6 +129,16 @@
       "zone_demand": { "name": "Demande" },
       "zone_sw_version": { "name": "Version firmware" },
       "zone_lqi_date": { "name": "Horodatage LQI" }
+    },
+    "number": {
+      "zone_stp_comf": { "name": "Consigne confort" },
+      "zone_stp_comf_min": { "name": "Minimum confort" },
+      "zone_stp_comf_max": { "name": "Maximum confort" },
+      "zone_stp_eco_c": { "name": "Éco climatisation" },
+      "zone_stp_eco_h": { "name": "Éco chauffage" },
+      "zone_stp_reduc_c": { "name": "Réduit climatisation" },
+      "zone_stp_reduc_h": { "name": "Réduit chauffage" },
+      "zone_tmp_offset": { "name": "Décalage température" }
     }
   }
 }

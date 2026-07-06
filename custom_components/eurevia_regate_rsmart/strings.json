@@ -9,6 +9,13 @@
           "port": "Port",
           "prefix": "MQTT prefix"
         }
+      },
+      "telemetry": {
+        "title": "Help extend reGATE support",
+        "description": "Optional opt-in: when a new or unsupported MQTT profile is detected on your installation, Home Assistant can notify you with a **pre-filled GitHub link** (anonymized roles and MQTT key names).\n\nNothing is sent automatically — you decide whether to open the link. This helps prioritize actuators, schedulers, and new MQTT keys.\n\nYou can change this anytime under **reGATE → Configure**.",
+        "data": {
+          "telemetry": "Notify me about new or unsupported devices (recommended)"
+        }
       }
     },
     "error": {
@@ -23,7 +30,8 @@
         "title": "Zones",
         "description": "Select climatic zones to expose in Home Assistant.",
         "data": {
-          "selected_zone_ids": "Zones"
+          "selected_zone_ids": "Zones",
+          "telemetry": "Notify me about new or unsupported devices (anonymized; pre-filled GitHub link only — nothing sent without your click)"
         }
       },
       "zones": {
@@ -121,6 +129,16 @@
       "zone_demand": { "name": "Demand" },
       "zone_sw_version": { "name": "Firmware version" },
       "zone_lqi_date": { "name": "LQI timestamp" }
+    },
+    "number": {
+      "zone_stp_comf": { "name": "Comfort setpoint" },
+      "zone_stp_comf_min": { "name": "Comfort minimum" },
+      "zone_stp_comf_max": { "name": "Comfort maximum" },
+      "zone_stp_eco_c": { "name": "Eco cooling" },
+      "zone_stp_eco_h": { "name": "Eco heating" },
+      "zone_stp_reduc_c": { "name": "Reduced cooling" },
+      "zone_stp_reduc_h": { "name": "Reduced heating" },
+      "zone_tmp_offset": { "name": "Temperature offset" }
     }
   }
 }

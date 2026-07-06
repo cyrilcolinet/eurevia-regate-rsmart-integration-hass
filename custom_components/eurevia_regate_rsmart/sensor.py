@@ -180,8 +180,6 @@ async def async_setup_entry(
         for zone_key in zone_keys():
             zone_state = (store.get("zone_state") or {}).get(zone_key) or {}
             active_specs = [spec for spec in specs if spec.mqtt_key in zone_state]
-            if not active_specs:
-                active_specs = specs
             for spec in active_specs:
                 entity_key = f"{zone_key}:{spec.suffix}"
                 if entity_key in added_zone_keys:

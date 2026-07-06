@@ -167,11 +167,18 @@ class EureviaRegatePurifierFan(EureviaRegateEntity, FanEntity):
         await self._publish({"P_Mode": int(mode)})
 
     async def _publish(self, payload: dict[str, Any]) -> None:
-        device_id = self._command_device_id
-        if not device_id:
+        discovery = self._store.get("discovery")
+        device_ids = list(discovery.purifier_read_ids) if discovery else []
+        if not device_ids and self._command_device_id:
+            device_ids = [self._command_device_id]
+        if not device_ids:
             return
-        topic = topic_hvac_set(self._store["prefix"], device_id)
-        await self._store["client"].publish(topic, json.dumps(payload).encode("utf-8"))
+        client = self._store["client"]
+        prefix = self._store["prefix"]
+        encoded = json.dumps(payload).encode("utf-8")
+        for device_id in device_ids:
+            topic = topic_hvac_set(prefix, device_id)
+            await client.publish(topic, encoded)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

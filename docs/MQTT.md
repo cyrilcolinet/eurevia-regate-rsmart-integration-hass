@@ -1,5 +1,7 @@
 # MQTT protocol
 
+> **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](DISCLAIMER.md)
+
 Technical reference for the reGATE local MQTT API used by this integration.
 
 ## Broker

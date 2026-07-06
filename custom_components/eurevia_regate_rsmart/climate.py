@@ -17,11 +17,14 @@ from homeassistant.helpers.event import async_call_later
 from .const import DOMAIN, SIGNAL_ZONE_STATE_UPDATED, SIGNAL_ZONES_UPDATED, topic_hvac_set
 from .entity import EureviaRegateEntity, bloc_cvc_device_info, zone_device_info
 from .lib import as_float, as_int
-
-MODE_OFF = 0
-MODE_COMFORT = 1
-MODE_ECO = 2
-MODE_REDUCED = 3
+from .lib.setpoints import (
+    MODE_COMFORT,
+    MODE_ECO,
+    MODE_OFF,
+    MODE_REDUCED,
+    read_active_setpoint,
+    write_setpoint_payload,
+)
 
 PRESET_COMFORT = "comfort"
 PRESET_ECO = "eco"
@@ -139,7 +142,7 @@ class EureviaRegateZoneClimate(EureviaRegateEntity, ClimateEntity):
 
     @property
     def target_temperature(self) -> float | None:
-        return as_float(self._state.get("Stp_Comf"))
+        return read_active_setpoint(self._state)
 
     @property
     def min_temp(self) -> float:
@@ -192,7 +195,7 @@ class EureviaRegateZoneClimate(EureviaRegateEntity, ClimateEntity):
             temp_value = float(temp)
         except (TypeError, ValueError):
             return
-        await self._publish({"Mode": MODE_COMFORT, "Stp_Comf": temp_value})
+        await self._publish(write_setpoint_payload(self._state, temp_value))
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -288,7 +291,7 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
 
     @property
     def target_temperature(self) -> float | None:
-        temps = [as_float(state.get("Stp_Comf")) for state in self._zone_states()]
+        temps = [read_active_setpoint(state) for state in self._zone_states()]
         equal, common = _all_equal_ignore_none(temps)
         return common if equal else None
 
@@ -340,7 +343,16 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
             temp_value = float(temp)
         except (TypeError, ValueError):
             return
-        await self._publish_all({"Mode": MODE_COMFORT, "Stp_Comf": temp_value})
+        client = self._store["client"]
+        prefix = self._store["prefix"]
+        zone_state = self._store.get("zone_state") or {}
+        for zone_key, hvac_id in sorted((self._store.get("zone_key_to_hvac_id") or {}).items()):
+            if not hvac_id:
+                continue
+            state = zone_state.get(zone_key) or {}
+            payload = write_setpoint_payload(state, temp_value)
+            topic = topic_hvac_set(prefix, hvac_id)
+            await client.publish(topic, json.dumps(payload).encode("utf-8"))
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
         normalized = (fan_mode or "").strip().lower()
@@ -351,7 +363,7 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         modes = [as_int(state.get("Mode")) for state in self._zone_states()]
-        temps = [as_float(state.get("Stp_Comf")) for state in self._zone_states()]
+        temps = [read_active_setpoint(state) for state in self._zone_states()]
         boosts_raw = [state.get("Boost") for state in self._zone_states() if "Boost" in state]
         return {
             "mixed_modes": not _all_equal_ignore_none(modes)[0],

@@ -1,11 +1,13 @@
 # Roadmap (detailed view)
 
+> **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](DISCLAIMER.md)
+
 Short version: [README](../README.md) · detailed view below.
 
 | | |
 |---|---|
 | **Latest GitHub release** | [releases](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases/latest) |
-| **Repository `manifest.json`** | 1.0.0 |
+| **Repository `manifest.json`** | 1.1.0 |
 
 ## Status by feature
 
@@ -25,6 +27,18 @@ Short version: [README](../README.md) · detailed view below.
 | ⏳ Not planned | rSMART mobile app / cloud account | Out of scope |
 
 **Out of scope:** devices outside the Eurevia climatic stack on the reGATE hub.
+
+## v1.1.0
+
+- Per-mode climate setpoints (`Stp_Comf`, `Stp_Eco_C/H`, `Stp_Reduc_C/H`) with dynamic discovery
+- `number` entities for writable zone setpoints and `Tmp_Offset`
+- Purifier commands published to all terminal devices (`10` + `20`)
+- Terminal sensor keys union across all terminal MQTT devices
+- Binary sensors and zone sensors only when MQTT keys are present
+- Opt-in telemetry (persistent notification + pre-filled GitHub issue for unknown MQTT keys / unimplemented roles)
+- Diagnostics enriched with HVAC profiles and key lists
+
+Entity detail: [SUPPORTED_DEVICES.md](SUPPORTED_DEVICES.md) · Protocol: [MQTT.md](MQTT.md) · Telemetry: [TELEMETRY.md](TELEMETRY.md)
 
 ## v1.0.0 (initial release)
 

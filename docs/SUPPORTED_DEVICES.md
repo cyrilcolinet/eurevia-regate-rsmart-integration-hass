@@ -1,11 +1,13 @@
 # Supported devices and features
 
+> **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](DISCLAIMER.md)
+
 Detail by device type and Home Assistant entities created. HVAC device roles are detected from MQTT **payload key patterns** (see [`lib/capabilities.py`](../custom_components/eurevia_regate_rsmart/lib/capabilities.py)), not hardcoded device IDs.
 
 | | |
 |---|---|
 | **Latest GitHub release** | [releases](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases/latest) |
-| **Repository `manifest.json`** | 1.0.0 |
+| **Repository `manifest.json`** | 1.1.0 |
 
 Summary: [ROADMAP.md](ROADMAP.md)
 
@@ -23,13 +25,14 @@ This integration covers the **Eurevia reGATE / rSMART climatic stack**:
 
 Zones are listed on `{prefix}/zones`. Each enabled zone gets a device in Home Assistant after configuration.
 
-**HA entities:** `climate`, `binary_sensor`, `sensor`
+**HA entities:** `climate`, `number`, `binary_sensor`, `sensor`
 
 | Function | Detail |
 |----------|--------|
-| Mode | Comfort / eco / reduced / off (mapped from MQTT `Mode`) |
-| Setpoint | Target temperature per preset (`Stp_Comf`, `Stp_Eco`, `Stp_Red`) |
-| Limits | Min/max setpoint when advertised |
+| Mode | Comfort / eco / reduced / off (`Mode` 1 / 2 / 3 / 0) |
+| Setpoint | Active target follows mode: `Stp_Comf`, `Stp_Eco_C/H`, `Stp_Reduc_C/H` |
+| Writable setpoints | `number` per key when present (`Stp_Comf`, min/max, eco, reduced, `Tmp_Offset`) |
+| Limits | Climate slider uses `Stp_Comf_Min` / `Stp_Comf_Max` |
 | Window | `binary_sensor` from `Window` / window-open key |
 | Presence | `binary_sensor` from occupancy key |
 | Humidity | `sensor` when `RH` is in the zone HVAC payload |

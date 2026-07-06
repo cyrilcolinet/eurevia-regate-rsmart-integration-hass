@@ -1,0 +1,33 @@
+---
+name: Device profile (telemetry)
+description: Auto-generated or manual anonymized reGATE MQTT profile
+labels:
+  - device-telemetry
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Issues with the `device-telemetry` label are often created from Home Assistant opt-in telemetry.
+        Do **not** include broker host/IP, zone names, or thermostat IDs.
+  - type: textarea
+    attributes:
+      label: HVAC roles
+      placeholder: thermostat, terminal, system, actuator, …
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: MQTT keys (names only)
+      description: Key names from the pre-filled issue body or HA diagnostics export
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Unknown keys
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: Home Assistant / integration versions
+    validations:
+      required: false

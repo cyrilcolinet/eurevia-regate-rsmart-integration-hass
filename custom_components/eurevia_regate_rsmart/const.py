@@ -10,6 +10,8 @@ CONF_HOST = "host"
 CONF_PORT = "port"
 CONF_PREFIX = "prefix"
 CONF_ZONES = "zones"
+CONF_TELEMETRY = "telemetry"
+CONF_TELEMETRY_ONBOARDING = "telemetry_onboarding_shown"
 
 DEFAULT_PORT = 1883
 DEFAULT_PREFIX = "local"
@@ -20,6 +22,9 @@ SIGNAL_ZONES_UPDATED = f"{DOMAIN}_zones_updated"
 SIGNAL_ZONE_STATE_UPDATED = f"{DOMAIN}_zone_state_updated"
 SIGNAL_HVAC_DEVICE_STATE_UPDATED = f"{DOMAIN}_hvac_device_state_updated"
 SIGNAL_DISCOVERY_UPDATED = f"{DOMAIN}_discovery_updated"
+
+TELEMETRY_GITHUB_REPO = "cyrilcolinet/eurevia-regate-rsmart-integration-hass"
+TELEMETRY_ISSUE_LABELS = ("device-telemetry",)
 
 
 def topic_zones(prefix: str) -> str:

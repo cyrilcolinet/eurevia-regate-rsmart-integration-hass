@@ -1,5 +1,7 @@
 # HACS publication
 
+> **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](DISCLAIMER.md)
+
 Checklist aligned with the [official HACS documentation](https://www.hacs.xyz/docs/publish/).
 
 ## Custom repository (current install)

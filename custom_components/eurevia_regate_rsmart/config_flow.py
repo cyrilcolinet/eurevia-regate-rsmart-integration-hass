@@ -9,8 +9,19 @@ import uuid
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
+from homeassistant.helpers import selector
 
-from .const import CONF_HOST, CONF_PORT, CONF_PREFIX, DEFAULT_PORT, DEFAULT_PREFIX, DOMAIN, LOGGER
+from .const import (
+    CONF_HOST,
+    CONF_PORT,
+    CONF_PREFIX,
+    CONF_TELEMETRY,
+    CONF_TELEMETRY_ONBOARDING,
+    DEFAULT_PORT,
+    DEFAULT_PREFIX,
+    DOMAIN,
+    LOGGER,
+)
 from .exceptions import CannotConnect, MqttProtocolError
 from .mqtt import MqttConnInfo, SimpleMqttClient
 
@@ -65,9 +76,38 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors=errors,
             )
 
-        return self.async_create_entry(
-            title=f"reGATE {host}:{port}",
-            data={CONF_HOST: host, CONF_PORT: port, CONF_PREFIX: prefix},
+        self.context["connection"] = {
+            CONF_HOST: host,
+            CONF_PORT: port,
+            CONF_PREFIX: prefix,
+        }
+        return await self.async_step_telemetry()
+
+    async def async_step_telemetry(self, user_input: dict | None = None) -> ConfigFlowResult:
+        connection = self.context.get("connection")
+        if not connection:
+            return await self.async_step_user()
+
+        if user_input is not None:
+            host = connection[CONF_HOST]
+            port = int(connection[CONF_PORT])
+            prefix = connection[CONF_PREFIX]
+            return self.async_create_entry(
+                title=f"reGATE {host}:{port}",
+                data=connection,
+                options={
+                    CONF_TELEMETRY: user_input[CONF_TELEMETRY],
+                    CONF_TELEMETRY_ONBOARDING: True,
+                },
+            )
+
+        return self.async_show_form(
+            step_id="telemetry",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_TELEMETRY, default=False): selector.BooleanSelector(),
+                }
+            ),
         )
 
     async def _validate_broker(self, host: str, port: int) -> None:

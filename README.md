@@ -33,6 +33,8 @@
 
 ---
 
+> **Disclaimer — unofficial project:** This is a community-maintained integration. It is **not** official, **not** affiliated with, and **not** endorsed by [Eurevia](https://www.eurevia.com). The author and maintainers are **independent** and do **not** work for Eurevia. Full details: [docs/DISCLAIMER.md](docs/DISCLAIMER.md).
+
 The [Eurevia reGATE](https://www.eurevia.com/rsmart/) hub (rSMART ecosystem) exposes a **local MQTT broker**. This integration connects Home Assistant to that broker — no cloud account. Zone and HVAC state is pushed over MQTT; HA subscribes and publishes commands on the same topics.
 
 ## Why this integration?
@@ -113,14 +115,17 @@ Download a [release](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integ
 
 - 📋 [Supported devices & entities](docs/SUPPORTED_DEVICES.md)
 - 🗺️ [Roadmap](docs/ROADMAP.md)
+- ⚠️ [Disclaimer — unofficial project](docs/DISCLAIMER.md)
 - 📡 [MQTT protocol](docs/MQTT.md)
+- 📊 [Device telemetry (opt-in)](docs/TELEMETRY.md)
 - 🛠️ [Development](docs/DEVELOPMENT.md)
 - 🏠 [Eurevia rSMART](https://www.eurevia.com/rsmart/)
 
 ## Credits & license
 
-**Community** integration, not affiliated with Eurevia. Unofficial local MQTT bridge, subject to reGATE firmware changes.
+Unofficial community integration — see [docs/DISCLAIMER.md](docs/DISCLAIMER.md). Local MQTT bridge, subject to reGATE firmware changes.
 
-- Logo from [Eurevia](https://www.eurevia.com) (`brand/icon.png`)
+- Maintainer: [@cyrilcolinet](https://github.com/cyrilcolinet) — independent, not an Eurevia employee
+- Logo from [Eurevia](https://www.eurevia.com) (`brand/icon.png`) — trademark identification only
 
 [MIT](LICENSE) license

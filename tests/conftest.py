@@ -29,6 +29,7 @@ _HA_STUBS = [
     "homeassistant.components.fan",
     "homeassistant.components.sensor",
     "homeassistant.components.binary_sensor",
+    "homeassistant.components.number",
     "homeassistant.components.diagnostics",
     "homeassistant.components.persistent_notification",
 ]

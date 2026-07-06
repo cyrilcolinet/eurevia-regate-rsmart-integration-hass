@@ -1,5 +1,7 @@
 # Contributing
 
+> **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](docs/DISCLAIMER.md)
+
 Thanks for contributing. For local setup, tests, and CI, see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## Before you code

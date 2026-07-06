@@ -45,6 +45,7 @@ PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.FAN,
     Platform.BINARY_SENSOR,
+    Platform.NUMBER,
 ]
 
 __version__ = json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8"))[
@@ -87,6 +88,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
         },
     )
 
+    from .telemetry import EureviaTelemetryReporter, async_handle_telemetry_nudge
+
+    telemetry = EureviaTelemetryReporter(hass, entry)
+    store["telemetry"] = telemetry
+
+    async def _report_telemetry() -> None:
+        try:
+            await telemetry.async_report(store["discovery"], store.get("hvac_raw") or {})
+        except Exception:
+            _LOGGER.warning("reGATE telemetry skipped after discovery update", exc_info=True)
+
     def recompute_all(*, notify_discovery: bool = True) -> None:
         zone_cfg = _select_zone_cfg(entry, store["zones_raw"])
         store["zone_cfg"] = zone_cfg
@@ -108,6 +120,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
         async_dispatcher_send(hass, f"{SIGNAL_ZONES_UPDATED}_{entry.entry_id}")
         if notify_discovery and discovery != previous:
             async_dispatcher_send(hass, f"{SIGNAL_DISCOVERY_UPDATED}_{entry.entry_id}")
+            hass.async_create_task(_report_telemetry())
 
     async def on_message(topic: str, payload: bytes) -> None:
         try:
@@ -193,6 +206,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
     recompute_all()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await async_handle_telemetry_nudge(hass, entry)
     return True
 
 

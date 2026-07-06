@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import selector
 
-from .const import CONF_ZONES
+from .const import CONF_TELEMETRY, CONF_ZONES
 from .lib import slugify_snake
 
 
@@ -17,6 +17,7 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
         self._entry = config_entry
         self._zones_raw: list[dict] = []
         self._selected_ids: list[int] = []
+        self._telemetry = bool(config_entry.options.get(CONF_TELEMETRY, False))
 
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
         store = self.hass.data.get(self._entry.domain, {}).get(self._entry.entry_id, {})
@@ -58,12 +59,17 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
                                 multiple=True,
                                 mode=selector.SelectSelectorMode.DROPDOWN,
                             )
-                        )
+                        ),
+                        vol.Required(
+                            CONF_TELEMETRY,
+                            default=bool(self._entry.options.get(CONF_TELEMETRY, False)),
+                        ): selector.BooleanSelector(),
                     }
                 ),
             )
 
         self._selected_ids = [int(item) for item in (user_input.get("selected_zone_ids") or [])]
+        self._telemetry = bool(user_input.get(CONF_TELEMETRY, False))
         return await self.async_step_zones()
 
     async def async_step_zones(self, user_input: dict | None = None) -> ConfigFlowResult:
@@ -129,4 +135,10 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
                 "isClimatic": bool(zone.get("isClimatic")),
             }
 
-        return self.async_create_entry(title="", data={CONF_ZONES: new_zones})
+        return self.async_create_entry(
+            title="",
+            data={
+                CONF_ZONES: new_zones,
+                CONF_TELEMETRY: self._telemetry,
+            },
+        )

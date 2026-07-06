@@ -112,8 +112,10 @@ def discover_hvac_devices(
         purifier_command = purifiers[0]
 
     terminal_keys: set[str] = set()
-    if terminal_primary and terminal_primary in hvac_raw:
-        terminal_keys.update(hvac_raw[terminal_primary].keys())
+    for device_id in terminals:
+        payload = hvac_raw.get(device_id)
+        if isinstance(payload, dict):
+            terminal_keys.update(payload.keys())
 
     zone_keys: set[str] = set()
     for state in (zone_state or {}).values():
