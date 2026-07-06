@@ -46,7 +46,7 @@ Entity detail: [SUPPORTED_DEVICES.md](SUPPORTED_DEVICES.md) · Protocol: [MQTT.m
 - Zone list from `{prefix}/zones` + config flow zone picker
 - HVAC device classification by payload keys (terminal, purifier, thermostat, actuator, system, scheduler)
 - Climate, fan, sensor, binary_sensor platforms
-- Unit tests + optional live MQTT integration tests
+- Unit + E2E tests (frozen JSON MQTT snapshot) + CI
 - CI: Ruff, pytest, Hassfest, HACS
 
 Entity detail: [SUPPORTED_DEVICES.md](SUPPORTED_DEVICES.md) · Protocol: [MQTT.md](MQTT.md)

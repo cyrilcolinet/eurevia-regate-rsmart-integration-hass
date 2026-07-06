@@ -10,7 +10,7 @@ license = { text = "MIT" }
 asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
-    "integration: tests that call the live reGATE MQTT broker",
+    "e2e: end-to-end tests using frozen reGATE MQTT JSON fixtures",
 ]
 
 [tool.ruff]

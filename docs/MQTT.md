@@ -68,11 +68,7 @@ From a machine on the same LAN:
 mosquitto_sub -h <regate-ip> -t 'local/#' -v
 ```
 
-Or with the integration test harness ([DEVELOPMENT.md](DEVELOPMENT.md#live-mqtt-tests-optional)):
-
-```bash
-REGATE_MQTT_HOST=192.168.1.40 REGATE_MQTT_PREFIX=local pytest tests/integration -m integration -v
-```
+Or capture payloads into [`tests/fixtures/regate_snapshot.json`](../tests/fixtures/regate_snapshot.json) for offline E2E tests ([DEVELOPMENT.md](DEVELOPMENT.md)).
 
 ## Related docs
 

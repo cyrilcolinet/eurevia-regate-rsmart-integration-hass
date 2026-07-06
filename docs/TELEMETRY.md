@@ -42,7 +42,7 @@ Diagnostics and GitHub prefill include:
 
 ## For contributors
 
-See [DEVELOPMENT.md](DEVELOPMENT.md) for tests and live MQTT exploration.
+See [DEVELOPMENT.md](DEVELOPMENT.md) for unit/E2E tests.
 
 ## Technical
 

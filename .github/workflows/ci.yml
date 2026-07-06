@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements-dev.txt
-      - run: pytest tests/unit -v --tb=short
+      - run: pytest tests/unit tests/e2e -v --tb=short
 
   hassfest:
     name: Hassfest
@@ -56,20 +56,3 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
-
-  integration:
-    name: Live MQTT tests
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.14"
-      - run: python -m pip install --upgrade pip
-      - run: pip install -r requirements-dev.txt paho-mqtt
-      - run: pytest tests/integration -v --tb=short -m integration
-        env:
-          REGATE_MQTT_HOST: ${{ secrets.REGATE_MQTT_HOST }}
-          REGATE_MQTT_PORT: ${{ secrets.REGATE_MQTT_PORT }}
-          REGATE_MQTT_PREFIX: ${{ secrets.REGATE_MQTT_PREFIX }}

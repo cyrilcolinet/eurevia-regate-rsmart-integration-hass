@@ -1,0 +1,160 @@
+{
+  "_comment": "Frozen MQTT payloads captured from a reGATE rSMART install (anonymized). Refresh locally with mosquitto_sub if firmware adds keys.",
+  "prefix": "local",
+  "zones": [
+    {
+      "id": 1,
+      "name": "Living room",
+      "customName": "Sejour",
+      "isClimatic": true,
+      "devices": ["0x00124b002bcb497b"]
+    },
+    {
+      "id": 2,
+      "name": "Bedroom",
+      "customName": "Chambre",
+      "isClimatic": true,
+      "devices": ["0x00124b002bc7ba94"]
+    },
+    {
+      "id": 3,
+      "name": "Office",
+      "customName": "Bureau",
+      "isClimatic": true,
+      "devices": ["0x00124b002f2f498e"]
+    }
+  ],
+  "zigbee_devices": [
+    {
+      "ieee_address": "0x00124b002bcb497b",
+      "definition": { "model": "THERMOSTAT" }
+    },
+    {
+      "ieee_address": "0x00124b002bc7ba94",
+      "definition": { "model": "THERMOSTAT" }
+    },
+    {
+      "ieee_address": "0x00124b002f2f498e",
+      "definition": { "model": "THERMOSTAT" }
+    }
+  ],
+  "hvac_devices": {
+    "0": {
+      "Comm": false,
+      "Heating_Mode": 0,
+      "Mode": 0,
+      "Mode_FB": 0,
+      "PAC": 0
+    },
+    "10": {
+      "Air_Temp": 29.2,
+      "Assembly": 3,
+      "Fan_Speed": 0,
+      "Mode": 2,
+      "P_Mode": 0,
+      "Stp_AF": 10,
+      "Valve_Cmd": 0,
+      "Valve_Cmd_Corrected": 0,
+      "Water_Temp": 29.5,
+      "Water_Auth": true
+    },
+    "20": {
+      "Assembly": 1,
+      "Fan_Speed": 35,
+      "Mode": 0,
+      "P_Mode": 2,
+      "Stp_AF": 10,
+      "Water_Auth": true
+    },
+    "30": {
+      "Boost": false,
+      "Day": 6,
+      "Hyst": 0.5,
+      "Night": 22,
+      "Stp": 19
+    },
+    "101": {
+      "Authorized": true,
+      "Boost": false,
+      "Com_Th": true,
+      "Demand": false,
+      "Detection": "Presence",
+      "Mode": 1,
+      "Mode_Active": 1,
+      "Operating_Mode": 0,
+      "RH": 45,
+      "Stp_Comf": 22,
+      "Stp_Comf_Min": 15,
+      "Stp_Comf_Max": 27,
+      "Stp_Eco_C": 30,
+      "Stp_Eco_H": 15,
+      "Stp_Reduc_C": 27,
+      "Stp_Reduc_H": 18,
+      "Th_ID": "0x00124b002bcb497b",
+      "Th_Type": "reSENS",
+      "Tmp": 27.9,
+      "Tmp_Offset": 0.0,
+      "Water_Auth": true,
+      "Window": false
+    },
+    "102": {
+      "Authorized": true,
+      "Battery": "OK",
+      "Battery_low": false,
+      "Boost": false,
+      "Com_Th": true,
+      "Demand": true,
+      "Detection": "Absence",
+      "LQI": 120,
+      "LQI_percent": 80,
+      "Mode": 2,
+      "Mode_Active": 2,
+      "Operating_Mode": 0,
+      "RH": 52,
+      "Stp_Comf": 20,
+      "Stp_Comf_Min": 15,
+      "Stp_Comf_Max": 27,
+      "Stp_Eco_C": 25,
+      "Stp_Eco_H": 16,
+      "Stp_Reduc_C": 28,
+      "Stp_Reduc_H": 19,
+      "Th_ID": "0x00124b002bc7ba94",
+      "Th_Type": "reSENS",
+      "Tmp": 26.8,
+      "Tmp_Offset": 0.2,
+      "Water_Auth": true,
+      "Window": false
+    },
+    "103": {
+      "Authorized": true,
+      "Boost": false,
+      "Com_Th": true,
+      "Demand": false,
+      "Mode": 3,
+      "Mode_Active": 3,
+      "Operating_Mode": 0,
+      "RH": 48,
+      "Stp_Comf": 22,
+      "Stp_Comf_Min": 18,
+      "Stp_Comf_Max": 27,
+      "Stp_Eco_C": 30,
+      "Stp_Eco_H": 15,
+      "Stp_Reduc_C": 28,
+      "Stp_Reduc_H": 19,
+      "Th_ID": "0x00124b002f2f498e",
+      "Th_Type": "reSENS",
+      "Tmp": 27.2,
+      "Tmp_Offset": 0.0,
+      "Water_Auth": true,
+      "Window": true
+    },
+    "104": {
+      "Mode": 0,
+      "Stp_Comf": 22,
+      "Stp_Comf_Min": 18,
+      "Stp_Comf_Max": 27,
+      "Th_ID": "Th_ID",
+      "Tmp": 20.0
+    }
+  }
+}

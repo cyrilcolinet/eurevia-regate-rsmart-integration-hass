@@ -17,12 +17,21 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 ```
 
-## Unit tests
+## Unit and E2E tests
 
 Without a reGATE on the network:
 
 ```bash
-pytest tests/unit -v
+pytest tests/unit tests/e2e -v
+```
+
+E2E tests replay a frozen MQTT snapshot in [`tests/fixtures/regate_snapshot.json`](../tests/fixtures/regate_snapshot.json) (zones, HVAC devices, discovery, setpoints, telemetry). No broker required.
+
+To refresh the snapshot from your LAN (optional):
+
+```bash
+mosquitto_sub -h <regate-ip> -t 'local/zones' -C 1 > /tmp/zones.json
+# Merge retained HVAC payloads into tests/fixtures/regate_snapshot.json manually
 ```
 
 ## Lint and format
@@ -38,16 +47,6 @@ ruff format --check .   # or ruff format . to fix
 - **Markdown** (`docs/`, `README.md`, …): English
 - **Home Assistant UI** (`strings.json`, translations): French and English via translation files
 
-## Live MQTT tests (optional)
-
-Against your reGATE broker:
-
-```bash
-REGATE_MQTT_HOST=192.168.1.40 REGATE_MQTT_PREFIX=local pytest tests/integration -m integration -v
-```
-
-Tests subscribe to real topics and validate discovery against live payloads. They do not mutate HVAC state.
-
 ## Testing in Home Assistant
 
 Copy `custom_components/eurevia_regate_rsmart/` into your dev instance `config/custom_components/`, restart, add the integration via the UI.
@@ -61,11 +60,9 @@ Triggered on every push to `main` and every pull request:
 | Job | Role |
 |-----|------|
 | Lint | Ruff check + format |
-| Unit tests | `pytest tests/unit` |
+| Unit tests | `pytest tests/unit tests/e2e` |
 | Hassfest | HA integration validation |
 | HACS | Repository validation (default store eligibility) |
-
-Live MQTT tests: run locally only (not in CI by default).
 
 ## Publishing a release
 
