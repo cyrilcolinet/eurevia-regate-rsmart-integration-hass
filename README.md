@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/main/custom_components/eurevia_regate_rsmart/brand/icon.png" alt="Eurevia reGATE" width="128" height="128">
+  <img src="https://raw.githubusercontent.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/main/custom_components/eurevia_regate_rsmart/brand/logo-eurevia.png" alt="Eurevia" width="280">
 </p>
 
 <h1 align="center">Eurevia reGATE (rSmart) for Home Assistant</h1>
@@ -128,7 +128,7 @@ REGATE_MQTT_HOST=192.168.1.40 REGATE_MQTT_PREFIX=local pytest tests/integration 
 
 ## Credits
 
-- Brand icon from [eurevia.com](https://www.eurevia.com) (rSMART product line)
+- Logo from [Eurevia](https://www.eurevia.com) (`brand/logo-eurevia.svg`)
 - Not affiliated with Eurevia — community integration, use at your own risk
 
 ## License
