@@ -49,8 +49,12 @@
     "10": {
       "Air_Temp": 21.5,
       "Assembly": 3,
+      "Fan_E": 10,
+      "Fan_N": 20,
+      "Fan_S": 30,
       "Fan_Speed": 0,
       "Mode": 2,
+      "Operating_authorization": 1,
       "P_Mode": 0,
       "Stp_AF": 10,
       "Valve_Cmd": 0,

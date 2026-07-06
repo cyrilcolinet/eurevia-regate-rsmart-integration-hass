@@ -114,3 +114,7 @@ def test_telemetry_flags_from_snapshot(hvac_raw):
         profile_needs_telemetry(scheduler_profile, unknown_keys_for_profile(scheduler_profile))
         is False
     )
+
+    terminal_unknown = unknown_keys_for_profile(profiles_by_id["10"])
+    assert terminal_unknown == []
+    assert profile_needs_telemetry(profiles_by_id["10"], terminal_unknown) is False

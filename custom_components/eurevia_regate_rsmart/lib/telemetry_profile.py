@@ -39,9 +39,23 @@ EXTRA_KNOWN_ZONE_KEYS = frozenset(
 
 EXTRA_KNOWN_TERMINAL_KEYS = frozenset(
     {
+        "Actuator_Type",
         "Assembly",
         "Channels",
+        "Channels_Bound_Closing",
+        "Channels_Bound_Opening",
         "Channels_Cmd",
+        "Fan_1C",
+        "Fan_2C",
+        "Fan_3C",
+        "Fan_4C",
+        "Fan_5C",
+        "Fan_6C",
+        "Inverter_Min",
+        "Inverter_Min_Summer",
+        "MTA",
+        "Name",
+        "Operating_Mode",
         "P_Boost",
         "P_Fan_E",
         "P_Fan_N",
@@ -51,8 +65,22 @@ EXTRA_KNOWN_TERMINAL_KEYS = frozenset(
         "P_Timer_Def",
         "P_Timer_Left",
         "P_Timer_Max",
+        "Type",
+        "Valve_Debugging_Timer",
+        "Valve_Heat_Debugging_Timer",
+        "Valve_PWM_Timer",
+        "Z_Min_Reference_Capacity_Authorize",
+        "Z_Step_Speed_2",
+        "Z_Step_Speed_3",
+        "Z_Step_Speed_4",
+        "Z_Temp_Limit_Speed_1",
+        "Z_Temp_Limit_Speed_2",
+        "Z_brand",
     }
 )
+
+# Installer / factory test keys — never surfaced in HA or telemetry.
+IGNORED_MQTT_KEY_PREFIXES = ("Test_",)
 
 EXTRA_KNOWN_ACTUATOR_KEYS = frozenset({"Pos_Min", "Pos_Max", "Pos_Cmd"})
 
@@ -148,7 +176,13 @@ def ha_platforms_for_roles(roles: HvacRole) -> list[str]:
 
 def unknown_keys_for_profile(profile: HvacDeviceProfile) -> list[str]:
     known = known_mqtt_keys()
-    return sorted(key for key in profile.keys if key not in known and key not in PRIVACY_KEYS)
+    return sorted(
+        key
+        for key in profile.keys
+        if key not in known
+        and key not in PRIVACY_KEYS
+        and not any(key.startswith(prefix) for prefix in IGNORED_MQTT_KEY_PREFIXES)
+    )
 
 
 def is_placeholder_thermostat(

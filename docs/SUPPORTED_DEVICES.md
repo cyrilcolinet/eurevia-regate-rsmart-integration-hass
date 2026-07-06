@@ -86,6 +86,14 @@ Created when matching keys appear on the terminal HVAC payload:
 | `Water_Hot`, `Water_Cold`, `Fan_Min`, `Fan_Max` | Config / setpoints |
 | `PID_Enable`, `PID_T_Integral`, `PID_T_Derivate`, `DB`, `Hyst` | PID tuning |
 | `P_Timer_Left` | Purifier timer (minutes) |
+| `Stp_AF` | Air flow setpoint |
+| `Fan_E`, `Fan_N`, `Fan_S` | Terminal fan speeds (%) |
+| `Fan_Timer` | Fan timer (minutes) |
+| `Operating_authorization`, `Operating_Priority` | Operating config |
+| `Absence_Detection_*`, `Presence_Detection_Timer` | Presence detection |
+| `Window_Open_*`, `Window_Close_Timer` | Window interlock config |
+| `Valve_Type` | Valve hardware type |
+| Extra `PID_*` | PID tuning (diagnostic) |
 | `Mode`, `Fan_Mode`, `Fan_Cmd` | Raw mode integers |
 
 Full registry: [`lib/field_registry.py`](../custom_components/eurevia_regate_rsmart/lib/field_registry.py).
