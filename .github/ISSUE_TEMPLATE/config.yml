@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/blob/main/CONTRIBUTING.md
+    about: How to report bugs, propose features, and open pull requests
+  - name: Eurevia support (official)
+    url: https://www.eurevia.com/support/
+    about: Product help and hardware issues
+  - name: Home Assistant community
+    url: https://community.home-assistant.io/
+    about: Questions about Home Assistant usage

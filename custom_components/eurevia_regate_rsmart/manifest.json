@@ -1,0 +1,13 @@
+{
+  "domain": "eurevia_regate_rsmart",
+  "name": "Eurevia reGATE (rSmart)",
+  "codeowners": ["@cyrilcolinet"],
+  "config_flow": true,
+  "documentation": "https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/issues",
+  "loggers": ["custom_components.eurevia_regate_rsmart"],
+  "requirements": [],
+  "version": "1.0.0"
+}

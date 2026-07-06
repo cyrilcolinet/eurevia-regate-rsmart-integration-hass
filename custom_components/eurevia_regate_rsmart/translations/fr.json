@@ -1,0 +1,112 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connexion reGATE",
+        "description": "Entrez l'hôte (IP) et le port MQTT de la reGATE.\n\nComment trouver l'adresse IP :\n\n• Depuis un terminal sur le réseau local :\n  `arp -a` puis cherchez un hôte contenant « gatexway ».\n\n• Depuis l'app reGATE :\n  Paramètres → Informations reGATE → hôte/IP.\n\n• Vous pouvez aussi identifier l'appareil par son adresse MAC dans votre box/routeur.",
+        "data": {
+          "host": "Hôte / IP",
+          "port": "Port",
+          "prefix": "Préfixe MQTT"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de se connecter au broker MQTT.",
+      "invalid_mqtt": "Connexion TCP OK mais échec du handshake MQTT.",
+      "unknown": "Erreur inattendue pendant la configuration."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zones",
+        "description": "Sélectionnez les zones climatiques à exposer dans Home Assistant.",
+        "data": {
+          "selected_zone_ids": "Zones"
+        }
+      },
+      "zones": {
+        "title": "Configuration des zones",
+        "description": "Nom, clé et pièce suggérée par zone."
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "global": {
+        "name": "Thermostat global",
+        "preset_mode": {
+          "comfort": "Confort",
+          "eco": "Éco",
+          "sleep": "Réduit"
+        },
+        "fan_mode": {
+          "auto": "Auto",
+          "boost": "Boost"
+        }
+      },
+      "zone": {
+        "name": "Thermostat",
+        "preset_mode": {
+          "comfort": "Confort",
+          "eco": "Éco",
+          "sleep": "Réduit"
+        }
+      }
+    },
+    "fan": {
+      "purifier": {
+        "name": "Purificateur d'air",
+        "preset_mode": {
+          "auto": "Automatique",
+          "mini": "Mini",
+          "moyen": "Moyen",
+          "maxi": "Maxi"
+        }
+      }
+    },
+    "binary_sensor": {
+      "window": {
+        "name": "Fenêtre"
+      },
+      "presence": {
+        "name": "Présence"
+      }
+    },
+    "sensor": {
+      "terminal_water_temp": { "name": "Température eau" },
+      "terminal_air_temp": { "name": "Température air" },
+      "terminal_fan_speed": { "name": "Vitesse ventilation" },
+      "terminal_valve_cmd": { "name": "Commande vanne" },
+      "terminal_valve_cmd_corrected": { "name": "Commande vanne (corrigée)" },
+      "terminal_mode_raw": { "name": "Mode (raw)" },
+      "terminal_fan_mode_raw": { "name": "Mode ventilation (raw)" },
+      "terminal_fan_cmd_raw": { "name": "Commande ventilation (raw)" },
+      "terminal_water_hot_cfg": { "name": "Eau chaude (cfg)" },
+      "terminal_water_cold_cfg": { "name": "Eau froide (cfg)" },
+      "terminal_fan_min_cfg": { "name": "Ventilation min (cfg)" },
+      "terminal_fan_max_cfg": { "name": "Ventilation max (cfg)" },
+      "terminal_db_cfg": { "name": "Bande morte (cfg)" },
+      "terminal_hyst_cfg": { "name": "Hystérésis (cfg)" },
+      "terminal_pid_enable_cfg": { "name": "PID activé (cfg)" },
+      "terminal_pid_t_integral_cfg": { "name": "PID temps intégral (cfg)" },
+      "terminal_pid_t_derivate_cfg": { "name": "PID temps dérivée (cfg)" },
+      "terminal_p_timer_left": { "name": "Timer purificateur restant" },
+      "zone_humidity": { "name": "Humidité" },
+      "zone_battery_state": { "name": "Batterie" },
+      "zone_battery_low": { "name": "Batterie faible" },
+      "zone_voltage": { "name": "Tension" },
+      "zone_voltage_percent": { "name": "Tension (%)" },
+      "zone_lqi": { "name": "Qualité liaison (LQI)" },
+      "zone_lqi_percent": { "name": "Qualité liaison (%)" },
+      "zone_com_th": { "name": "Com thermostat" },
+      "zone_authorized": { "name": "Autorisé" },
+      "zone_water_auth": { "name": "Eau autorisée" },
+      "zone_operating_auth": { "name": "Fonctionnement autorisé" },
+      "zone_demand": { "name": "Demande" },
+      "zone_sw_version": { "name": "Version firmware" },
+      "zone_lqi_date": { "name": "Horodatage LQI" }
+    }
+  }
+}

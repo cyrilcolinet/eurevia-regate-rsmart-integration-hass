@@ -1,0 +1,42 @@
+---
+name: Bug report
+description: Report a bug with the Eurevia reGATE integration
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening an issue, search [existing issues](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/issues).
+  - type: input
+    attributes:
+      label: Home Assistant version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Integration version
+      description: Version shown in HACS or manifest.json
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the issue
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction steps
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Debug logs
+      description: Enable logger `custom_components.eurevia_regate_rsmart: debug` in configuration.yaml
+      render: text
+    validations:
+      required: true

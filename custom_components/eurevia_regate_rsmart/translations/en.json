@@ -1,0 +1,112 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "reGATE connection",
+        "description": "Enter the MQTT host (IP) and port of the reGATE.\n\nHow to find the IP address:\n\n• From a terminal on your local network:\n  `arp -a` then look for a host containing \"gatexway\".\n\n• From the reGATE app:\n  Settings → reGATE information → find the host/IP.\n\n• You can also identify the device by its MAC address in your router/DHCP list.",
+        "data": {
+          "host": "Host / IP",
+          "port": "Port",
+          "prefix": "MQTT prefix"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the MQTT broker.",
+      "invalid_mqtt": "Connected to the host but MQTT handshake failed.",
+      "unknown": "Unexpected error during setup."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zones",
+        "description": "Select climatic zones to expose in Home Assistant.",
+        "data": {
+          "selected_zone_ids": "Zones"
+        }
+      },
+      "zones": {
+        "title": "Zone configuration",
+        "description": "Name, key and suggested area for each zone."
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "global": {
+        "name": "Global thermostat",
+        "preset_mode": {
+          "comfort": "Comfort",
+          "eco": "Eco",
+          "sleep": "Reduced"
+        },
+        "fan_mode": {
+          "auto": "Auto",
+          "boost": "Boost"
+        }
+      },
+      "zone": {
+        "name": "Thermostat",
+        "preset_mode": {
+          "comfort": "Comfort",
+          "eco": "Eco",
+          "sleep": "Reduced"
+        }
+      }
+    },
+    "fan": {
+      "purifier": {
+        "name": "Air purifier",
+        "preset_mode": {
+          "auto": "Auto",
+          "mini": "Low",
+          "moyen": "Medium",
+          "maxi": "High"
+        }
+      }
+    },
+    "binary_sensor": {
+      "window": {
+        "name": "Window"
+      },
+      "presence": {
+        "name": "Presence"
+      }
+    },
+    "sensor": {
+      "terminal_water_temp": { "name": "Water temperature" },
+      "terminal_air_temp": { "name": "Air temperature" },
+      "terminal_fan_speed": { "name": "Fan speed" },
+      "terminal_valve_cmd": { "name": "Valve command" },
+      "terminal_valve_cmd_corrected": { "name": "Valve command (corrected)" },
+      "terminal_mode_raw": { "name": "Mode (raw)" },
+      "terminal_fan_mode_raw": { "name": "Fan mode (raw)" },
+      "terminal_fan_cmd_raw": { "name": "Fan command (raw)" },
+      "terminal_water_hot_cfg": { "name": "Hot water setpoint (cfg)" },
+      "terminal_water_cold_cfg": { "name": "Cold water setpoint (cfg)" },
+      "terminal_fan_min_cfg": { "name": "Min fan speed (cfg)" },
+      "terminal_fan_max_cfg": { "name": "Max fan speed (cfg)" },
+      "terminal_db_cfg": { "name": "Dead band (cfg)" },
+      "terminal_hyst_cfg": { "name": "Hysteresis (cfg)" },
+      "terminal_pid_enable_cfg": { "name": "PID enabled (cfg)" },
+      "terminal_pid_t_integral_cfg": { "name": "PID integral time (cfg)" },
+      "terminal_pid_t_derivate_cfg": { "name": "PID derivative time (cfg)" },
+      "terminal_p_timer_left": { "name": "Purifier timer remaining" },
+      "zone_humidity": { "name": "Humidity" },
+      "zone_battery_state": { "name": "Battery" },
+      "zone_battery_low": { "name": "Battery low" },
+      "zone_voltage": { "name": "Voltage" },
+      "zone_voltage_percent": { "name": "Voltage (%)" },
+      "zone_lqi": { "name": "Link quality (LQI)" },
+      "zone_lqi_percent": { "name": "Link quality (%)" },
+      "zone_com_th": { "name": "Thermostat comms" },
+      "zone_authorized": { "name": "Authorized" },
+      "zone_water_auth": { "name": "Water authorized" },
+      "zone_operating_auth": { "name": "Operating authorized" },
+      "zone_demand": { "name": "Demand" },
+      "zone_sw_version": { "name": "Firmware version" },
+      "zone_lqi_date": { "name": "LQI timestamp" }
+    }
+  }
+}
