@@ -111,11 +111,7 @@ def ha_platforms_for_roles(roles: HvacRole) -> list[str]:
 
 def unknown_keys_for_profile(profile: HvacDeviceProfile) -> list[str]:
     known = known_mqtt_keys()
-    return sorted(
-        key
-        for key in profile.keys
-        if key not in known and key not in PRIVACY_KEYS
-    )
+    return sorted(key for key in profile.keys if key not in known and key not in PRIVACY_KEYS)
 
 
 def is_placeholder_thermostat(
