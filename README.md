@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/main/custom_components/eurevia_regate_rsmart/brand/logo-eurevia.png" alt="Eurevia" width="280">
+  <img src="https://raw.githubusercontent.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/main/custom_components/eurevia_regate_rsmart/brand/logo-eurevia.png" alt="Eurevia" width="120">
 </p>
 
 <h1 align="center">Eurevia reGATE (rSmart) for Home Assistant</h1>
