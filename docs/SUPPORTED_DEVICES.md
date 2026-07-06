@@ -7,7 +7,7 @@ Detail by device type and Home Assistant entities created. HVAC device roles are
 | | |
 |---|---|
 | **Latest GitHub release** | [releases](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases/latest) |
-| **Repository `manifest.json`** | 1.1.0 |
+| **Repository `manifest.json`** | 1.1.1 |
 
 Summary: [ROADMAP.md](ROADMAP.md)
 

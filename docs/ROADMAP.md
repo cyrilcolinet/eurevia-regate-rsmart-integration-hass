@@ -7,7 +7,7 @@ Short version: [README](../README.md) · detailed view below.
 | | |
 |---|---|
 | **Latest GitHub release** | [releases](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases/latest) |
-| **Repository `manifest.json`** | 1.1.0 |
+| **Repository `manifest.json`** | 1.1.1 |
 
 ## Status by feature
 
