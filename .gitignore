@@ -33,6 +33,9 @@ htmlcov/
 *.swp
 *~
 
+# Local MQTT captures (may contain real device IDs)
+.mqtt_probe.log
+
 # Build artefact
 custom_components/eurevia_regate_rsmart/eurevia_regate_rsmart.zip
 *.zip

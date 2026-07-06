@@ -35,9 +35,9 @@ def test_snapshot_has_climatic_zones(regate_snapshot):
 
 def test_discovery_from_snapshot(hvac_raw):
     zone_state = {
-        "sejour": hvac_raw["101"],
-        "chambre": hvac_raw["102"],
-        "bureau": hvac_raw["103"],
+        "zone_alpha": hvac_raw["101"],
+        "zone_beta": hvac_raw["102"],
+        "zone_gamma": hvac_raw["103"],
     }
     discovery = discover_hvac_devices(hvac_raw, zone_state)
     assert discovery.terminal_primary_id == "10"
@@ -59,26 +59,26 @@ def test_zone_mappings_from_snapshot(regate_snapshot, hvac_raw, hvac_id_to_th_id
         hvac_id_to_th_id,
     )
 
-    assert zone_key_to_hvac_id["sejour"] == "101"
-    assert zone_key_to_hvac_id["chambre"] == "102"
-    assert zone_key_to_hvac_id["bureau"] == "103"
-    assert read_active_setpoint(zone_state["sejour"]) == 22.0
-    assert read_active_setpoint(zone_state["chambre"]) == 16.0
-    assert read_active_setpoint(zone_state["bureau"]) == 28.0
+    assert zone_key_to_hvac_id["zone_alpha"] == "101"
+    assert zone_key_to_hvac_id["zone_beta"] == "102"
+    assert zone_key_to_hvac_id["zone_gamma"] == "103"
+    assert read_active_setpoint(zone_state["zone_alpha"]) == 20.0
+    assert read_active_setpoint(zone_state["zone_beta"]) == 18.0
+    assert read_active_setpoint(zone_state["zone_gamma"]) == 24.0
 
 
 def test_setpoint_write_payloads_per_mode(hvac_raw):
-    sejour = hvac_raw["101"]
-    chambre = hvac_raw["102"]
-    bureau = hvac_raw["103"]
+    zone_alpha = hvac_raw["101"]
+    zone_beta = hvac_raw["102"]
+    zone_gamma = hvac_raw["103"]
 
-    assert write_setpoint_payload(sejour, 21.0) == {"Mode": MODE_COMFORT, "Stp_Comf": 21.0}
-    assert write_setpoint_payload(chambre, 17.0) == {"Mode": MODE_ECO, "Stp_Eco_H": 17.0}
-    assert write_setpoint_payload(bureau, 26.0) == {"Mode": MODE_REDUCED, "Stp_Reduc_C": 26.0}
+    assert write_setpoint_payload(zone_alpha, 21.0) == {"Mode": MODE_COMFORT, "Stp_Comf": 21.0}
+    assert write_setpoint_payload(zone_beta, 17.0) == {"Mode": MODE_ECO, "Stp_Eco_H": 17.0}
+    assert write_setpoint_payload(zone_gamma, 23.0) == {"Mode": MODE_REDUCED, "Stp_Reduc_C": 23.0}
 
 
 def test_number_entities_match_snapshot_keys(hvac_raw):
-    discovery = discover_hvac_devices(hvac_raw, {"sejour": hvac_raw["101"]})
+    discovery = discover_hvac_devices(hvac_raw, {"zone_alpha": hvac_raw["101"]})
     specs = setpoint_specs_for_keys(discovery.zone_keys)
     mqtt_keys = {spec.mqtt_key for spec in specs}
 

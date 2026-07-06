@@ -27,7 +27,7 @@ THERMO_102 = {
     "Mode": 0,
     "Stp_Comf": 20,
     "Tmp": 26.8,
-    "Th_ID": "0x00124b002bcb497b",
+    "Th_ID": "0xcafebabe11111111",
     "RH": 52,
 }
 

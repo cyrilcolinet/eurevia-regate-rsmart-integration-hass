@@ -25,7 +25,7 @@ Without a reGATE on the network:
 pytest tests/unit tests/e2e -v
 ```
 
-E2E tests replay a frozen MQTT snapshot in [`tests/fixtures/regate_snapshot.json`](../tests/fixtures/regate_snapshot.json) (zones, HVAC devices, discovery, setpoints, telemetry). No broker required.
+E2E tests replay a **synthetic** MQTT snapshot in [`tests/fixtures/regate_snapshot.json`](../tests/fixtures/regate_snapshot.json) (fake IEEE addresses and setpoints — not tied to any real install).
 
 To refresh the snapshot from your LAN (optional):
 
