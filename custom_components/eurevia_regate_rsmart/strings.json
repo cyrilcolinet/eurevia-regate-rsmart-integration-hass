@@ -36,33 +36,47 @@
     "climate": {
       "global": {
         "name": "Global thermostat",
-        "preset_mode": {
-          "comfort": "Comfort",
-          "eco": "Eco",
-          "sleep": "Reduced"
-        },
-        "fan_mode": {
-          "auto": "Auto",
-          "boost": "Boost"
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "comfort": "Comfort",
+              "eco": "Eco",
+              "sleep": "Reduced"
+            }
+          },
+          "fan_mode": {
+            "state": {
+              "auto": "Auto",
+              "boost": "Boost"
+            }
+          }
         }
       },
       "zone": {
         "name": "Thermostat",
-        "preset_mode": {
-          "comfort": "Comfort",
-          "eco": "Eco",
-          "sleep": "Reduced"
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "comfort": "Comfort",
+              "eco": "Eco",
+              "sleep": "Reduced"
+            }
+          }
         }
       }
     },
     "fan": {
       "purifier": {
         "name": "Air purifier",
-        "preset_mode": {
-          "auto": "Auto",
-          "mini": "Low",
-          "moyen": "Medium",
-          "maxi": "High"
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "auto": "Auto",
+              "mini": "Low",
+              "moyen": "Medium",
+              "maxi": "High"
+            }
+          }
         }
       }
     },

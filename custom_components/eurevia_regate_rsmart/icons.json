@@ -2,26 +2,30 @@
   "entity": {
     "climate": {
       "global": {
-        "state": {
-          "fan_mode": {
-            "boost": "mdi:fan-plus",
-            "auto": "mdi:fan"
-          }
-        },
         "state_attributes": {
           "preset_mode": {
-            "comfort": "mdi:weather-sunny",
-            "eco": "mdi:leaf",
-            "sleep": "mdi:weather-night"
+            "state": {
+              "comfort": "mdi:weather-sunny",
+              "eco": "mdi:leaf",
+              "sleep": "mdi:weather-night"
+            }
+          },
+          "fan_mode": {
+            "state": {
+              "boost": "mdi:fan-plus",
+              "auto": "mdi:fan"
+            }
           }
         }
       },
       "zone": {
         "state_attributes": {
           "preset_mode": {
-            "comfort": "mdi:weather-sunny",
-            "eco": "mdi:leaf",
-            "sleep": "mdi:weather-night"
+            "state": {
+              "comfort": "mdi:weather-sunny",
+              "eco": "mdi:leaf",
+              "sleep": "mdi:weather-night"
+            }
           }
         }
       }
@@ -30,10 +34,12 @@
       "purifier": {
         "state_attributes": {
           "preset_mode": {
-            "auto": "mdi:autorenew",
-            "mini": "mdi:fan-speed-1",
-            "moyen": "mdi:fan-speed-2",
-            "maxi": "mdi:fan-speed-3"
+            "state": {
+              "auto": "mdi:autorenew",
+              "mini": "mdi:fan-speed-1",
+              "moyen": "mdi:fan-speed-2",
+              "maxi": "mdi:fan-speed-3"
+            }
           }
         },
         "default": "mdi:air-purifier"

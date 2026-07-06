@@ -2,9 +2,24 @@
 
 <!-- What changed and why -->
 
+## Type
+
+- [ ] Bug fix
+- [ ] Feature
+- [ ] Docs / tooling
+- [ ] Refactor
+
 ## Checklist
 
-- [ ] `ruff check .` passes
-- [ ] `ruff format .` passes
-- [ ] `pytest tests/unit -v` passes
-- [ ] FR + EN translations updated if UI strings changed
+- [ ] `ruff check .` and `ruff format --check .` pass
+- [ ] `pytest tests/unit` passes
+- [ ] FR/EN translations updated if the UI changed
+- [ ] No secrets or personal identifiers in the diff
+
+## Related issues
+
+Fixes #
+
+## Test plan
+
+<!-- How to verify — reGATE hardware, HA steps, etc. -->

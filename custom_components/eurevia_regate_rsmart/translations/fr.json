@@ -36,33 +36,47 @@
     "climate": {
       "global": {
         "name": "Thermostat global",
-        "preset_mode": {
-          "comfort": "Confort",
-          "eco": "Éco",
-          "sleep": "Réduit"
-        },
-        "fan_mode": {
-          "auto": "Auto",
-          "boost": "Boost"
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "comfort": "Confort",
+              "eco": "Éco",
+              "sleep": "Réduit"
+            }
+          },
+          "fan_mode": {
+            "state": {
+              "auto": "Auto",
+              "boost": "Boost"
+            }
+          }
         }
       },
       "zone": {
         "name": "Thermostat",
-        "preset_mode": {
-          "comfort": "Confort",
-          "eco": "Éco",
-          "sleep": "Réduit"
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "comfort": "Confort",
+              "eco": "Éco",
+              "sleep": "Réduit"
+            }
+          }
         }
       }
     },
     "fan": {
       "purifier": {
         "name": "Purificateur d'air",
-        "preset_mode": {
-          "auto": "Automatique",
-          "mini": "Mini",
-          "moyen": "Moyen",
-          "maxi": "Maxi"
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "auto": "Automatique",
+              "mini": "Mini",
+              "moyen": "Moyen",
+              "maxi": "Maxi"
+            }
+          }
         }
       }
     },

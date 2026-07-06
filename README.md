@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/main/custom_components/eurevia_regate_rsmart/brand/logo-eurevia.png" alt="Eurevia" width="120">
+  <img src="https://raw.githubusercontent.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/main/custom_components/eurevia_regate_rsmart/brand/icon.png" alt="Eurevia" width="128" height="128">
 </p>
 
 <h1 align="center">Eurevia reGATE (rSmart) for Home Assistant</h1>
@@ -17,60 +17,81 @@
 </p>
 
 <p align="center">
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=cyrilcolinet&repository=eurevia-regate-rsmart-integration-hass&category=integration">
+    <img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open in HACS">
+  </a>
+</p>
+
+<p align="center">
   <a href="#installation">Installation</a> ·
-  <a href="#entities">Entities</a> ·
-  <a href="#mqtt-protocol">MQTT</a> ·
-  <a href="#development">Development</a>
+  <a href="docs/SUPPORTED_DEVICES.md">Devices</a> ·
+  <a href="docs/ROADMAP.md">Roadmap</a> ·
+  <a href="https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases">Releases</a> ·
+  <a href="https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/issues/new?template=bug.yml">Bug</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
 ---
 
-This integration connects Home Assistant to the **local MQTT broker** exposed by the [Eurevia reGATE](https://www.eurevia.com/rsmart/) hub (rSMART ecosystem). No cloud account — the reGATE pushes zone and HVAC state over MQTT; HA subscribes and publishes commands on the same topics.
+The [Eurevia reGATE](https://www.eurevia.com/rsmart/) hub (rSMART ecosystem) exposes a **local MQTT broker**. This integration connects Home Assistant to that broker — no cloud account. Zone and HVAC state is pushed over MQTT; HA subscribes and publishes commands on the same topics.
 
 ## Why this integration?
 
 - **Connection** — IP/hostname + port of the reGATE MQTT broker (default `1883`, prefix `local`)
+- **Requirements** — reGATE online, climatic zones configured in the rSMART app
 - **Architecture** — Local hub (`iot_class: local_push`), lightweight async MQTT 3.1.1 client
 - **Discovery** — Zones from `{prefix}/zones`, thermostats via Zigbee inventory + HVAC payloads
-- **Auto-classification** — HVAC device IDs are inferred from payload key patterns (terminal, purifier, thermostat, actuator, system) — nothing hardcoded to `10` / `20`
+- **Auto-classification** — HVAC device IDs inferred from payload key patterns (terminal, purifier, thermostat, …) — nothing hardcoded to `10` / `20`
 
-> **Scope:** Eurevia reGATE / reSENS climatic zones, hydraulic terminal (Bloc CVC), air purifier. Third-party Zigbee devices paired outside the climatic stack are out of scope.
+> **Out of scope:** third-party Zigbee devices paired outside the Eurevia climatic stack → use [Zigbee2MQTT](https://www.zigbee2mqtt.io/) or ZHA. Only reGATE / reSENS climatic zones, hydraulic terminal (Bloc CVC), and integrated air purifier are supported.
 
 ## Features
 
-### Climate
+### Supported
 
-- **Global thermostat** — sync mode, setpoint and boost (fan_mode) to all zones
+- **Global thermostat** — sync mode, setpoint and boost (`fan_mode`) to all zones
 - **Per-zone thermostat** — comfort / eco / reduced presets, target temperature, min/max limits
+- **Air purifier** on the hydraulic terminal — auto / mini / moyen / maxi presets (`fan`)
+- **Terminal (Bloc CVC)** — water/air temperature, fan speed, valve command, PID config, … (`sensor`)
+- **Per zone** — humidity, battery, LQI, comms, firmware version, … (`sensor`)
+- **Window open** and **presence** per climatic zone (`binary_sensor`)
 
-### Fan
+### Beta
 
-- **Air purifier** on the hydraulic terminal — auto / mini / moyen / maxi presets
+- **Actuator / scheduler / system** HVAC roles — discovered and logged; no HA entities yet
 
-### Sensors
-
-- **Terminal (Bloc CVC)** — water/air temperature, fan speed, valve command, PID config, …
-- **Per zone** — humidity, battery, LQI, comms, firmware version, …
-
-### Binary sensors
-
-- **Window open** and **presence** per climatic zone
+Per-device detail: [docs/SUPPORTED_DEVICES.md](docs/SUPPORTED_DEVICES.md) · History: [docs/ROADMAP.md](docs/ROADMAP.md)
 
 ## Installation
 
 ### HACS (recommended)
 
+<p align="center">
+  <a href="https://my.home-assistant.io/redirect/hacs_repository/?owner=cyrilcolinet&repository=eurevia-regate-rsmart-integration-hass&category=integration">
+    <img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open in HACS">
+  </a>
+</p>
+
 1. **HACS** → **Integrations** → **⋮** → **Custom repositories**
 2. URL: `https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass` — category **Integration**
 3. **Explore & download repositories** → **Eurevia reGATE (rSmart)** → **Download**
 4. **Restart** Home Assistant
-5. **Settings** → **Devices & services** → **Add integration** → **Eurevia reGATE (rSmart)**
 
-### Manual
+Default HACS store (goal): [docs/HACS.md](docs/HACS.md#default-hacs-store)
 
-Copy `custom_components/eurevia_regate_rsmart/` into your Home Assistant `config/custom_components/` directory and restart.
+### Add the integration
+
+1. **Settings** → **Devices & services** → **Add integration**
+2. Search for **Eurevia reGATE (rSmart)** — enter reGATE host, port and topic prefix
+3. Open **Configure** to select climatic zones, rename them and assign HA areas
+
+### Manual install
+
+Download a [release](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases) or clone this repo, copy `custom_components/eurevia_regate_rsmart/` into `config/custom_components/`, restart HA.
 
 ## Configuration
+
+**Settings** → **Devices & services** → **Eurevia reGATE (rSmart)** → **Configure**
 
 | Field | Default | Description |
 |-------|---------|-------------|
@@ -78,59 +99,28 @@ Copy `custom_components/eurevia_regate_rsmart/` into your Home Assistant `config
 | Port | `1883` | MQTT broker port |
 | Prefix | `local` | Topic prefix (`local/zones`, `local/hvac/devices/…`) |
 
-After setup, open **Configure** to select climatic zones, rename them and assign HA areas.
+- **Zone selection** — Enable/disable climatic zones, custom names, HA areas
+- **Reconfigure** — Change host, port or prefix
 
-## Entities
+## Troubleshooting
 
-| Platform | Device | Description |
-|----------|--------|-------------|
-| `climate` | Bloc CVC | Global thermostat + boost |
-| `climate` | Zone | Per-room thermostat |
-| `fan` | Bloc CVC | Air purifier |
-| `sensor` | Bloc CVC / Zone | Terminal + zone diagnostics |
-| `binary_sensor` | Zone | Window, presence |
+- **Cannot connect** — Verify reGATE IP and port; broker must be reachable from Home Assistant (same LAN)
+- **No zones** — Check topic prefix matches reGATE config (default `local`); zones must appear in the rSMART app
+- **Missing entities** — HVAC devices appear when retained MQTT payloads are received; restart integration after reGATE reboot
+- **Bug** — [Issue](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/issues/new?template=bug.yml) + `custom_components.eurevia_regate_rsmart` logs
 
-## MQTT protocol
+## Resources
 
-| Topic | Direction | Content |
-|-------|-----------|---------|
-| `{prefix}/zones` | Subscribe | JSON array of climatic zones |
-| `{prefix}/zigbee/devices` | Subscribe | Zigbee inventory (thermostat filter) |
-| `{prefix}/hvac/devices/+` | Subscribe | HVAC device state (retained) |
-| `{prefix}/hvac/devices/{id}/set` | Publish | Commands (mode, setpoint, boost, purifier) |
+- 📋 [Supported devices & entities](docs/SUPPORTED_DEVICES.md)
+- 🗺️ [Roadmap](docs/ROADMAP.md)
+- 📡 [MQTT protocol](docs/MQTT.md)
+- 🛠️ [Development](docs/DEVELOPMENT.md)
+- 🏠 [Eurevia rSMART](https://www.eurevia.com/rsmart/)
 
-Example command — set comfort 21.5 °C on zone HVAC device `102`:
+## Credits & license
 
-```json
-{"Mode": 1, "Stp_Comf": 21.5}
-```
+**Community** integration, not affiliated with Eurevia. Unofficial local MQTT bridge, subject to reGATE firmware changes.
 
-Global boost:
+- Logo from [Eurevia](https://www.eurevia.com) (`brand/icon.png`)
 
-```json
-{"Boost": true}
-```
-
-## Development
-
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt
-ruff check . && ruff format --check .
-pytest tests/unit -v
-```
-
-Live MQTT tests (optional, against your reGATE):
-
-```bash
-REGATE_MQTT_HOST=192.168.1.40 REGATE_MQTT_PREFIX=local pytest tests/integration -m integration -v
-```
-
-## Credits
-
-- Logo from [Eurevia](https://www.eurevia.com) (`brand/logo-eurevia.svg`)
-- Not affiliated with Eurevia — community integration, use at your own risk
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+[MIT](LICENSE) license
