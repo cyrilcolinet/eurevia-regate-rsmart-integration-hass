@@ -110,6 +110,7 @@ def test_telemetry_flags_from_snapshot(hvac_raw):
 
     scheduler_profile = profiles_by_id["30"]
     assert scheduler_profile.roles & HvacRole.SCHEDULER
-    assert profile_needs_telemetry(
-        scheduler_profile, unknown_keys_for_profile(scheduler_profile)
-    ) is False
+    assert (
+        profile_needs_telemetry(scheduler_profile, unknown_keys_for_profile(scheduler_profile))
+        is False
+    )
