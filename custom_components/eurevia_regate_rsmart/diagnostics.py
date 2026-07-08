@@ -11,8 +11,10 @@ from homeassistant.core import HomeAssistant
 from .const import CONF_HOST, CONF_PORT, CONF_PREFIX, CONF_TELEMETRY, DOMAIN
 from .lib.capabilities import HvacDeviceProfile
 from .lib.telemetry_profile import (
+    build_github_new_issue_url,
     is_placeholder_thermostat,
     profile_fingerprint,
+    profile_needs_telemetry,
     profile_to_export_dict,
     unknown_keys_for_profile,
 )
@@ -40,6 +42,13 @@ def _profile_exports(
             ha_version=ha_version,
         )
         export_dict["fingerprint"] = profile_fingerprint(export_dict)[:16]
+        full_fingerprint = profile_fingerprint(export_dict)
+        if not export_dict.get("supported_by_integration") and profile_needs_telemetry(
+            profile, unknown_keys
+        ):
+            export_dict["github_issue_url"] = build_github_new_issue_url(
+                export_dict, full_fingerprint
+            )
         exports.append(export_dict)
     return sorted(exports, key=lambda item: ",".join(item.get("roles") or []))
 

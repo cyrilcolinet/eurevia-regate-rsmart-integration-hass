@@ -1,6 +1,6 @@
 ---
 name: Device profile (telemetry)
-description: Auto-generated or manual anonymized reGATE MQTT profile
+description: Anonymized reGATE MQTT profile from HA diagnostics or opt-in telemetry
 labels:
   - device-telemetry
 body:
@@ -9,25 +9,54 @@ body:
       value: |
         Issues with the `device-telemetry` label are often created from Home Assistant opt-in telemetry.
         Do **not** include broker host/IP, zone names, or thermostat IDs.
+        Paste fields from **Download diagnostics** (`hvac_profiles`) or the pre-filled link from HA.
   - type: textarea
+    id: roles
     attributes:
       label: HVAC roles
-      placeholder: thermostat, terminal, system, actuator, …
+      placeholder: thermostat, terminal, purifier, actuator, system, scheduler
     validations:
       required: true
   - type: textarea
+    id: fingerprint
     attributes:
-      label: MQTT keys (names only)
-      description: Key names from the pre-filled issue body or HA diagnostics export
+      label: Profile fingerprint (16 chars)
+      placeholder: d3a6eae24e10efc6
+    validations:
+      required: false
+  - type: dropdown
+    id: supported
+    attributes:
+      label: Supported by integration
+      options:
+        - "no"
+        - "yes"
     validations:
       required: false
   - type: textarea
+    id: telemetry_reason
+    attributes:
+      label: Telemetry reason
+      placeholder: unknown_mqtt_keys, unimplemented_role, unsupported_profile
+    validations:
+      required: false
+  - type: textarea
+    id: mqtt_keys
+    attributes:
+      label: MQTT keys (names only)
+      description: From diagnostics `mqtt_keys` or pre-filled issue body
+    validations:
+      required: false
+  - type: textarea
+    id: unknown_keys
     attributes:
       label: Unknown keys
     validations:
       required: false
   - type: textarea
+    id: versions
     attributes:
       label: Home Assistant / integration versions
+      placeholder: integration_version 1.2.x, ha_version 2025.x
     validations:
       required: false
