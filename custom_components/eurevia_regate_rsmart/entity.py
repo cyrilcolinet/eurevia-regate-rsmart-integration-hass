@@ -167,3 +167,13 @@ def regate_system_device_info(entry: ConfigEntry) -> DeviceInfo:
         manufacturer="Eurevia",
         model="reGATE rSMART",
     )
+
+
+def regate_scheduler_device_info(entry: ConfigEntry) -> DeviceInfo:
+    """Device registry entry for the reGATE day/night scheduler."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"scheduler_{entry.entry_id}")},
+        name="reGATE Scheduler",
+        manufacturer="Eurevia",
+        model="reGATE rSMART",
+    )

@@ -58,7 +58,7 @@ async def test_fingerprint_saved_after_notification():
 
 
 @pytest.mark.asyncio
-async def test_actuator_only_notifies_without_repair():
+async def test_actuator_only_is_silent():
     hass = MagicMock()
     hass.config.version = "2025.1.0"
     entry = MagicMock()
@@ -91,9 +91,10 @@ async def test_actuator_only_notifies_without_repair():
     ) as sync_repairs:
         await reporter.async_report(discovery, {"50": ACTUATOR_PAYLOAD})
 
-    reporter._notify_new_profile.assert_called_once()
+    reporter._notify_new_profile.assert_not_called()
     sync_repairs.assert_called_once()
     assert sync_repairs.call_args[0][2] == []
+    reporter._store.async_save.assert_called_once()
 
 
 @pytest.mark.asyncio

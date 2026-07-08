@@ -137,7 +137,7 @@ def _nudge_copy(hass: HomeAssistant, entry_id: str) -> tuple[str, str]:
             "MQTT profile is detected on your installation.\n\n"
             "**Anonymized** data only (roles, MQTT key names) — "
             "nothing is sent automatically; you get a pre-filled GitHub link if you choose.\n\n"
-            "This helps prioritize actuators, schedulers, and new MQTT keys.\n\n"
+            "This helps prioritize schedulers and new MQTT keys.\n\n"
             f"[Open reGATE options]({configure_url})"
         ),
     )

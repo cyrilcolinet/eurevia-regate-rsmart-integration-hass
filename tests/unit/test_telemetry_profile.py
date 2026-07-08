@@ -30,16 +30,44 @@ def test_thermostat_with_known_keys_is_supported():
     assert profile_needs_telemetry(profile, unknown) is False
 
 
-def test_system_device_skips_telemetry():
+def test_system_device_is_supported():
     profile = classify_hvac_payload("0", {"Heating_Mode": 1, "PAC": True, "Mode": 0})
     unknown = unknown_keys_for_profile(profile)
 
     assert unknown == []
+    assert profile_supported_by_integration(profile, unknown) is True
     assert profile_needs_telemetry(profile, unknown) is False
-    assert profile_supported_by_integration(profile, unknown) is False
 
 
-def test_thermostat_with_config_keys_skips_telemetry():
+def test_scheduler_device_is_supported():
+    profile = classify_hvac_payload("30", {"Day": 6, "Night": 20, "Stp": 18, "Hyst": 0.5})
+    unknown = unknown_keys_for_profile(profile)
+
+    assert profile.roles & HvacRole.SCHEDULER
+    assert unknown == []
+    assert profile_supported_by_integration(profile, unknown) is True
+    assert profile_needs_telemetry(profile, unknown) is False
+
+
+def test_actuator_only_profile_is_ignored():
+    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Window": "Close"})
+    unknown = unknown_keys_for_profile(profile)
+
+    assert profile.roles & HvacRole.ACTUATOR
+    assert unknown == []
+    assert profile_needs_telemetry(profile, unknown) is False
+    assert profile_should_raise_repair_issue(profile, unknown) is False
+
+
+def test_actuator_only_with_unknown_keys_still_ignored():
+    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Mystery": 1})
+    unknown = unknown_keys_for_profile(profile)
+
+    assert profile_needs_telemetry(profile, unknown) is False
+    assert profile_should_raise_repair_issue(profile, unknown) is False
+
+
+def test_thermostat_with_actuator_role_does_not_repair_for_actuator_label():
     profile = classify_hvac_payload(
         "101",
         {
@@ -94,25 +122,7 @@ def test_fingerprint_is_stable_without_device_id():
     assert profile_fingerprint(export_a) == profile_fingerprint(export_b)
 
 
-def test_actuator_only_device_needs_notification_but_not_repair():
-    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Window": "Close"})
-    unknown = unknown_keys_for_profile(profile)
-
-    assert profile.roles & HvacRole.ACTUATOR
-    assert unknown == []
-    assert profile_needs_telemetry(profile, unknown) is True
-    assert profile_should_raise_repair_issue(profile, unknown) is False
-
-
-def test_actuator_only_with_unknown_keys_needs_notification_not_repair():
-    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Mystery": 1})
-    unknown = unknown_keys_for_profile(profile)
-
-    assert profile_needs_telemetry(profile, unknown) is True
-    assert profile_should_raise_repair_issue(profile, unknown) is False
-
-
-def test_thermostat_with_actuator_role_does_not_repair_for_actuator_label():
+def test_thermostat_with_config_keys_skips_telemetry():
     profile = classify_hvac_payload(
         "101",
         {"Th_ID": "abc", "Mode": 1, "Tmp": 21.0, "Stp_Comf": 22.0, "Window": False},
