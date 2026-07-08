@@ -40,7 +40,7 @@
     },
     "unsupported_profile": {
       "title": "Profil MQTT reGATE non supporté",
-      "description": "Les rôles **{roles}** ne sont pas encore entièrement gérés. Activez les notifications télémétrie ou téléchargez les diagnostics pour un lien GitHub pré-rempli."
+      "description": "Les rôles **{roles}** sont détectés sur votre reGATE mais pas encore exposés dans Home Assistant (prévu — voir roadmap). Exportez les diagnostics depuis la page de l'intégration pour un lien GitHub pré-rempli."
     }
   },
   "exceptions": {
@@ -115,14 +115,6 @@
         }
       }
     },
-    "binary_sensor": {
-      "window": {
-        "name": "Fenêtre"
-      },
-      "presence": {
-        "name": "Présence"
-      }
-    },
     "sensor": {
       "terminal_water_temp": { "name": "Température eau" },
       "terminal_air_temp": { "name": "Température air" },
@@ -185,7 +177,10 @@
       "zone_stp_eco_h": { "name": "Éco chauffage" },
       "zone_stp_reduc_c": { "name": "Réduit climatisation" },
       "zone_stp_reduc_h": { "name": "Réduit chauffage" },
-      "zone_tmp_offset": { "name": "Décalage température" }
+      "zone_tmp_offset": { "name": "Décalage température" },
+      "system_heating_mode": { "name": "Mode chauffage" },
+      "system_pac": { "name": "PAC / climatisation" },
+      "system_mode": { "name": "Mode système" }
     }
   }
 }

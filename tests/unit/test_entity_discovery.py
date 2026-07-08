@@ -1,7 +1,6 @@
 """Tests for entity discovery rules."""
 
 from eurevia_regate_rsmart.lib.entity_discovery import (
-    zone_binary_suffixes_for_state,
     zone_entity_cache_key,
     zone_number_specs_for_zone,
     zone_sensor_specs_for_zone,
@@ -9,13 +8,7 @@ from eurevia_regate_rsmart.lib.entity_discovery import (
 
 
 def test_zone_entity_cache_key_format():
-    assert zone_entity_cache_key("zone_alpha", "window") == "zone_alpha:window"
-
-
-def test_zone_binary_suffixes_only_for_present_keys():
-    assert zone_binary_suffixes_for_state({"Window": "Open"}) == ["window"]
-    assert zone_binary_suffixes_for_state({"Detection": "Presence"}) == ["presence"]
-    assert zone_binary_suffixes_for_state({}) == []
+    assert zone_entity_cache_key("zone_alpha", "stp_comf") == "zone_alpha:stp_comf"
 
 
 def test_zone_sensor_specs_require_key_in_zone_state():

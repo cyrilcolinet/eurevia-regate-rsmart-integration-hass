@@ -7,6 +7,7 @@ from eurevia_regate_rsmart.lib.setpoints import (
     MODE_REDUCED,
     is_heating_active,
     read_active_setpoint,
+    resolve_zone_hvac_action,
     setpoint_key_for_mode,
     write_setpoint_payload,
 )
@@ -65,3 +66,8 @@ def test_write_setpoint_payload_comfort():
     state = {"Mode": MODE_COMFORT, "Tmp": 21.0, "Stp_Comf": 21.0}
     payload = write_setpoint_payload(state, 20.5)
     assert payload == {"Stp_Comf": 20.5, "Mode": MODE_COMFORT}
+
+
+def test_resolve_zone_hvac_action_heat_when_below_comfort():
+    state = {"Mode": MODE_COMFORT, "Demand": False, "Tmp": 19.0, "Stp_Comf": 21.0}
+    assert resolve_zone_hvac_action(state) == "heat"

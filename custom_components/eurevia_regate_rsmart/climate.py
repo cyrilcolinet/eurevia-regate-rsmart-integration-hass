@@ -23,14 +23,18 @@ from .entity import (
     zone_device_info,
 )
 from .lib import as_float, as_int
+from .lib.hvac_mode import aggregate_zone_hvac_action
 from .lib.setpoints import (
     MODE_COMFORT,
     MODE_ECO,
     MODE_OFF,
     MODE_REDUCED,
     read_active_setpoint,
+    resolve_zone_hvac_action,
     write_setpoint_payload,
+    zone_supports_cooling,
 )
+from .lib.system_control import async_apply_system_cooling
 from .platform_helpers import setup_dynamic_entities, zone_keys_from_store
 from .store import get_store
 
@@ -48,6 +52,68 @@ MODE_TO_PRESET = {
     MODE_ECO: PRESET_ECO,
     MODE_REDUCED: PRESET_SLEEP,
 }
+
+HVAC_ACTION_TO_MODE = {
+    "off": HVACMode.OFF,
+    "heat": HVACMode.HEAT,
+    "cool": HVACMode.COOL,
+    "heat_cool": HVACMode.HEAT_COOL,
+}
+
+
+def _zone_hvac_modes(state: dict, discovery) -> list[HVACMode]:
+    modes = [HVACMode.OFF, HVACMode.HEAT]
+    zone_keys = discovery.zone_keys if discovery else frozenset()
+    if zone_supports_cooling(state, zone_keys) or (discovery and discovery.system_id):
+        modes.append(HVACMode.COOL)
+    return modes
+
+
+def _global_hvac_modes(store) -> list[HVACMode]:
+    discovery = store.discovery
+    modes = [HVACMode.OFF, HVACMode.HEAT]
+    zone_keys = discovery.zone_keys if discovery else frozenset()
+    supports_cooling = bool(discovery and discovery.system_id)
+    if not supports_cooling:
+        for zone_key in store.zone_cfg:
+            state = store.zone_state.get(zone_key) or {}
+            if zone_supports_cooling(state, zone_keys):
+                supports_cooling = True
+                break
+    if supports_cooling:
+        modes.extend([HVACMode.COOL, HVACMode.HEAT_COOL])
+    return modes
+
+
+def _action_from_hvac_mode(hvac_mode: HVACMode) -> str:
+    if hvac_mode == HVACMode.OFF:
+        return "off"
+    if hvac_mode == HVACMode.COOL:
+        return "cool"
+    if hvac_mode == HVACMode.HEAT_COOL:
+        return "heat_cool"
+    return "heat"
+
+
+async def _apply_zone_hvac_action(
+    store,
+    publish,
+    *,
+    state: dict,
+    action: str,
+) -> None:
+    if action == "off":
+        await async_apply_system_cooling(store, cooling=False)
+        await publish({"Mode": MODE_OFF})
+        return
+    if action == "cool":
+        await async_apply_system_cooling(store, cooling=True)
+    else:
+        await async_apply_system_cooling(store, cooling=False)
+    mode = as_int(state.get("Mode"))
+    if mode == MODE_OFF or mode is None:
+        await publish({"Mode": MODE_COMFORT})
+
 
 FAN_AUTO = "auto"
 FAN_BOOST = "boost"
@@ -115,7 +181,6 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
         | ClimateEntityFeature.TURN_OFF
     )
     _attr_preset_modes = [PRESET_COMFORT, PRESET_ECO, PRESET_SLEEP]
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT]
 
     def __init__(
         self, hass: HomeAssistant, entry: ConfigEntry, entry_id: str, zone_key: str
@@ -146,9 +211,12 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
         return value if value is not None else super().max_temp
 
     @property
+    def hvac_modes(self) -> list[HVACMode]:
+        return _zone_hvac_modes(self._zone_state, self._store.discovery)
+
+    @property
     def hvac_mode(self) -> HVACMode:
-        mode = as_int(self._zone_state.get("Mode"))
-        return HVACMode.OFF if mode == MODE_OFF else HVACMode.HEAT
+        return HVAC_ACTION_TO_MODE[resolve_zone_hvac_action(self._zone_state)]
 
     @property
     def preset_mode(self) -> str | None:
@@ -170,8 +238,12 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
         )
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-        payload = {"Mode": MODE_OFF} if hvac_mode == HVACMode.OFF else {"Mode": MODE_COMFORT}
-        await self._publish(payload)
+        await _apply_zone_hvac_action(
+            self._store,
+            self._publish,
+            state=self._zone_state,
+            action=_action_from_hvac_mode(hvac_mode),
+        )
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         mode = PRESET_TO_MODE.get(preset_mode)
@@ -227,7 +299,6 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
         | ClimateEntityFeature.FAN_MODE
     )
     _attr_preset_modes = [PRESET_COMFORT, PRESET_ECO, PRESET_SLEEP]
-    _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT]
     _attr_fan_modes = GLOBAL_FAN_MODES
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, entry_id: str) -> None:
@@ -247,12 +318,12 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
         return bloc_cvc_device_info(self._entry)
 
     @property
+    def hvac_modes(self) -> list[HVACMode]:
+        return _global_hvac_modes(self._store)
+
+    @property
     def hvac_mode(self) -> HVACMode:
-        modes = [as_int(state.get("Mode")) for state in self._zone_states()]
-        defined = [mode for mode in modes if mode is not None]
-        if defined and all(mode == MODE_OFF for mode in defined):
-            return HVACMode.OFF
-        return HVACMode.HEAT
+        return HVAC_ACTION_TO_MODE[aggregate_zone_hvac_action(self._zone_states())]
 
     @property
     def preset_mode(self) -> str | None:
@@ -288,15 +359,31 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
 
     async def async_turn_off(self) -> None:
         await self._publish_all({"Mode": MODE_OFF})
+        await async_apply_system_cooling(self._store, cooling=False)
 
     async def async_turn_on(self) -> None:
+        await async_apply_system_cooling(self._store, cooling=False)
         await self._publish_all({"Mode": MODE_COMFORT})
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-        if hvac_mode == HVACMode.OFF:
-            await self.async_turn_off()
-        else:
-            await self.async_turn_on()
+        action = _action_from_hvac_mode(hvac_mode)
+        if action == "off":
+            await self._publish_all({"Mode": MODE_OFF})
+            await async_apply_system_cooling(self._store, cooling=False)
+            return
+        if action == "cool":
+            await async_apply_system_cooling(self._store, cooling=True)
+        elif action == "heat":
+            await async_apply_system_cooling(self._store, cooling=False)
+        if action in ("heat", "cool", "heat_cool"):
+            payload = {"Mode": MODE_COMFORT}
+            for zone_key, hvac_id in sorted(self._store.zone_key_to_hvac_id.items()):
+                if not hvac_id:
+                    continue
+                state = self._store.zone_state.get(zone_key) or {}
+                mode = as_int(state.get("Mode"))
+                if mode == MODE_OFF or mode is None:
+                    await async_publish_hvac_command(self._store, str(hvac_id), payload)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         mode = PRESET_TO_MODE.get(preset_mode)

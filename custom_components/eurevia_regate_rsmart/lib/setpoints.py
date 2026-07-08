@@ -11,6 +11,8 @@ MODE_COMFORT = 1
 MODE_ECO = 2
 MODE_REDUCED = 3
 
+ZONE_COOLING_SETPOINT_KEYS = frozenset({"Stp_Eco_C", "Stp_Reduc_C", "DB_Cool"})
+
 WRITABLE_SETPOINT_KEYS = frozenset(
     {
         "Stp_Comf",
@@ -56,6 +58,22 @@ def read_active_setpoint(state: dict[str, Any]) -> float | None:
     if key is None:
         return None
     return as_float(state.get(key))
+
+
+def zone_supports_cooling(
+    state: dict[str, Any], zone_field_keys: frozenset[str] | set[str]
+) -> bool:
+    keys = set(state.keys()) | set(zone_field_keys)
+    return bool(keys & ZONE_COOLING_SETPOINT_KEYS)
+
+
+def resolve_zone_hvac_action(state: dict[str, Any]) -> str:
+    mode = as_int(state.get("Mode"))
+    if mode is None or mode == MODE_OFF:
+        return "off"
+    if is_heating_active(state):
+        return "heat"
+    return "cool"
 
 
 def write_setpoint_payload(

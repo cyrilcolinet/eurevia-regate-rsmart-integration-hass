@@ -157,3 +157,13 @@ def zone_device_info(zone_key: str, zone_cfg: dict) -> DeviceInfo:
         model="reSENS / reGATE Zone",
         suggested_area=zone_cfg.get("area_id"),
     )
+
+
+def regate_system_device_info(entry: ConfigEntry) -> DeviceInfo:
+    """Device registry entry for the reGATE system HVAC controller."""
+    return DeviceInfo(
+        identifiers={(DOMAIN, f"system_{entry.entry_id}")},
+        name="reGATE System",
+        manufacturer="Eurevia",
+        model="reGATE rSMART",
+    )

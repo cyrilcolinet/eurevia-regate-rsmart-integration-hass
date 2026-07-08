@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from .binary_registry import ZONE_BINARY_SPECS
 from .field_registry import FieldSensorSpec, terminal_specs_for_keys, zone_specs_for_keys
 from .setpoint_registry import SetpointNumberSpec, setpoint_specs_for_keys
 
@@ -33,7 +32,3 @@ def zone_number_specs_for_zone(
 ) -> list[SetpointNumberSpec]:
     specs = setpoint_specs_for_keys(zone_field_keys)
     return [spec for spec in specs if spec.mqtt_key in zone_state]
-
-
-def zone_binary_suffixes_for_state(zone_state: dict) -> list[str]:
-    return [spec.suffix for spec in ZONE_BINARY_SPECS if spec.mqtt_key in zone_state]

@@ -4,14 +4,27 @@ from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SIGNAL_DISCOVERY_UPDATED, SIGNAL_ZONES_UPDATED
-from .entity import EureviaZoneEntity, async_publish_hvac_command, zone_device_info
+from .const import (
+    DOMAIN,
+    SIGNAL_DISCOVERY_UPDATED,
+    SIGNAL_HVAC_DEVICE_STATE_UPDATED,
+    SIGNAL_ZONES_UPDATED,
+)
+from .entity import (
+    EureviaRegateEntity,
+    EureviaZoneEntity,
+    async_publish_hvac_command,
+    regate_system_device_info,
+    zone_device_info,
+)
 from .lib import as_float
 from .lib.entity_discovery import zone_entity_cache_key, zone_number_specs_for_zone
 from .lib.setpoint_registry import SetpointNumberSpec
+from .lib.system_registry import SystemNumberSpec, system_number_specs_for_keys
 from .platform_helpers import setup_dynamic_entities, zone_keys_from_store
 from .store import get_store
 
@@ -69,6 +82,79 @@ class EureviaRegateZoneSetpointNumber(EureviaZoneEntity, NumberEntity):
         )
 
 
+class EureviaRegateSystemNumber(EureviaRegateEntity, NumberEntity):
+    _attr_mode = NumberMode.BOX
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        entry_id: str,
+        spec: SystemNumberSpec,
+    ) -> None:
+        super().__init__(hass, entry, entry_id)
+        self._spec = spec
+        self._hvac_unsub = None
+        self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_system_{spec.suffix}"
+        self._attr_translation_key = spec.translation_key
+        self._attr_native_step = spec.step
+
+    @property
+    def device_info(self):
+        return regate_system_device_info(self._entry)
+
+    @property
+    def _system_state(self) -> dict:
+        discovery = self._store.discovery
+        if not discovery or not discovery.system_id:
+            return {}
+        payload = self._store.hvac_raw.get(discovery.system_id)
+        return payload if isinstance(payload, dict) else {}
+
+    @property
+    def native_value(self) -> float | None:
+        return as_float(self._system_state.get(self._spec.mqtt_key))
+
+    @property
+    def native_min_value(self) -> float:
+        return self._spec.min_value
+
+    @property
+    def native_max_value(self) -> float:
+        return self._spec.max_value
+
+    async def async_set_native_value(self, value: float) -> None:
+        discovery = self._store.discovery
+        if not discovery or not discovery.system_id:
+            raise ValueError("system device unavailable")
+        await async_publish_hvac_command(
+            self._store,
+            discovery.system_id,
+            {self._spec.mqtt_key: int(value) if value.is_integer() else float(value)},
+        )
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+
+        @callback
+        def _updated(device_id: str) -> None:
+            discovery = self._store.discovery
+            if discovery and discovery.system_id == device_id:
+                self.async_write_ha_state()
+
+        self._hvac_unsub = async_dispatcher_connect(
+            self.hass,
+            f"{SIGNAL_HVAC_DEVICE_STATE_UPDATED}_{self._entry_id}",
+            _updated,
+        )
+
+    async def async_will_remove_from_hass(self) -> None:
+        if self._hvac_unsub:
+            self._hvac_unsub()
+            self._hvac_unsub = None
+        await super().async_will_remove_from_hass()
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -91,6 +177,15 @@ async def async_setup_entry(
                     EureviaRegateZoneSetpointNumber(hass, entry, entry.entry_id, zone_key, spec)
                 )
                 added.add(entity_key)
+        if discovery and discovery.system_id:
+            system_state = store.hvac_raw.get(discovery.system_id) or {}
+            if isinstance(system_state, dict):
+                for spec in system_number_specs_for_keys(frozenset(system_state.keys())):
+                    entity_key = f"system:{spec.suffix}"
+                    if entity_key in added:
+                        continue
+                    entities.append(EureviaRegateSystemNumber(hass, entry, entry.entry_id, spec))
+                    added.add(entity_key)
         return entities
 
     setup_dynamic_entities(
@@ -98,5 +193,5 @@ async def async_setup_entry(
         entry,
         async_add_entities,
         build_entities,
-        (SIGNAL_ZONES_UPDATED, SIGNAL_DISCOVERY_UPDATED),
+        (SIGNAL_ZONES_UPDATED, SIGNAL_DISCOVERY_UPDATED, SIGNAL_HVAC_DEVICE_STATE_UPDATED),
     )
