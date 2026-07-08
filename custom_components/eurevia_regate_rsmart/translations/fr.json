@@ -12,7 +12,7 @@
       },
       "telemetry": {
         "title": "Aidez à étendre le support reGATE",
-        "description": "Opt-in facultatif : lorsqu'un profil MQTT nouveau ou non supporté est détecté sur votre installation, Home Assistant peut vous notifier avec un **lien GitHub pré-rempli** (rôles et noms de clés MQTT anonymisés).\n\nRien n'est envoyé automatiquement — vous décidez d'ouvrir le lien ou non. Cela aide à prioriser actionneurs, planificateurs et nouvelles clés MQTT.\n\nModifiable à tout moment via **reGATE → Configurer**.",
+        "description": "Opt-in facultatif : lorsqu'un profil MQTT nouveau ou non supporté est détecté sur votre installation, Home Assistant peut vous notifier avec un **lien GitHub pré-rempli** (rôles et noms de clés MQTT anonymisés).\n\nRien n'est envoyé automatiquement — vous décidez d'ouvrir le lien ou non. Cela aide à prioriser planificateurs et nouvelles clés MQTT.\n\nModifiable à tout moment via **reGATE → Configurer**.",
         "data": {
           "telemetry": "Me notifier pour les appareils nouveaux ou non supportés (recommandé)"
         }
@@ -180,7 +180,11 @@
       "zone_tmp_offset": { "name": "Décalage température" },
       "system_heating_mode": { "name": "Mode chauffage" },
       "system_pac": { "name": "PAC / climatisation" },
-      "system_mode": { "name": "Mode système" }
+      "system_mode": { "name": "Mode système" },
+      "scheduler_day": { "name": "Heure début jour" },
+      "scheduler_night": { "name": "Heure début nuit" },
+      "scheduler_setpoint": { "name": "Consigne planification" },
+      "scheduler_hysteresis": { "name": "Hystérésis planification" }
     }
   }
 }

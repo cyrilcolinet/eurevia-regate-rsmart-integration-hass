@@ -10,5 +10,5 @@
   "loggers": ["custom_components.eurevia_regate_rsmart"],
   "requirements": [],
   "single_config_entry": true,
-  "version": "1.2.3"
+  "version": "1.2.4"
 }

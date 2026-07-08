@@ -12,7 +12,7 @@
       },
       "telemetry": {
         "title": "Help extend reGATE support",
-        "description": "Optional opt-in: when a new or unsupported MQTT profile is detected on your installation, Home Assistant can notify you with a **pre-filled GitHub link** (anonymized roles and MQTT key names).\n\nNothing is sent automatically — you decide whether to open the link. This helps prioritize actuators, schedulers, and new MQTT keys.\n\nYou can change this anytime under **reGATE → Configure**.",
+        "description": "Optional opt-in: when a new or unsupported MQTT profile is detected on your installation, Home Assistant can notify you with a **pre-filled GitHub link** (anonymized roles and MQTT key names).\n\nNothing is sent automatically — you decide whether to open the link. This helps prioritize schedulers and new MQTT keys.\n\nYou can change this anytime under **reGATE → Configure**.",
         "data": {
           "telemetry": "Notify me about new or unsupported devices (recommended)"
         }
@@ -180,7 +180,11 @@
       "zone_tmp_offset": { "name": "Temperature offset" },
       "system_heating_mode": { "name": "Heating mode" },
       "system_pac": { "name": "PAC / cooling" },
-      "system_mode": { "name": "System mode" }
+      "system_mode": { "name": "System mode" },
+      "scheduler_day": { "name": "Day start hour" },
+      "scheduler_night": { "name": "Night start hour" },
+      "scheduler_setpoint": { "name": "Schedule setpoint" },
+      "scheduler_hysteresis": { "name": "Schedule hysteresis" }
     }
   }
 }

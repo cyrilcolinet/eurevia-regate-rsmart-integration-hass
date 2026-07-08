@@ -94,6 +94,8 @@ EXTRA_KNOWN_SYSTEM_KEYS = frozenset(
     }
 )
 
+EXTRA_KNOWN_SCHEDULER_KEYS = frozenset({"Boost", "Day", "Hyst", "Night", "Stp"})
+
 EXTRA_KNOWN_ZONE_CONFIG_KEYS = frozenset(
     {
         "Channels",
@@ -116,14 +118,17 @@ EXTRA_KNOWN_ZONE_CONFIG_KEYS = frozenset(
     }
 )
 
-# No Settings → Repairs for pure profiles (roadmap, most installs).
-REPAIR_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER | HvacRole.ACTUATOR
+# Actuator HVAC devices — intentionally out of scope (no HA entities, silent telemetry).
+IGNORED_ROLES = HvacRole.ACTUATOR
 
-# No notification spam for infra roles (system partially exposed; scheduler TBD).
-NOTIFICATION_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER
-
-UNIMPLEMENTED_ROLES = HvacRole.ACTUATOR | HvacRole.SYSTEM | HvacRole.SCHEDULER
-IMPLEMENTED_ROLES = HvacRole.THERMOSTAT | HvacRole.TERMINAL | HvacRole.PURIFIER
+UNIMPLEMENTED_ROLES = HvacRole.NONE
+IMPLEMENTED_ROLES = (
+    HvacRole.THERMOSTAT
+    | HvacRole.TERMINAL
+    | HvacRole.PURIFIER
+    | HvacRole.SYSTEM
+    | HvacRole.SCHEDULER
+)
 
 _ROLE_LABELS: tuple[tuple[str, HvacRole], ...] = (
     ("thermostat", HvacRole.THERMOSTAT),
@@ -152,12 +157,20 @@ def known_mqtt_keys() -> frozenset[str]:
     keys.update(EXTRA_KNOWN_TERMINAL_KEYS)
     keys.update(EXTRA_KNOWN_ACTUATOR_KEYS)
     keys.update(EXTRA_KNOWN_SYSTEM_KEYS)
+    keys.update(EXTRA_KNOWN_SCHEDULER_KEYS)
     keys.update(EXTRA_KNOWN_ZONE_CONFIG_KEYS)
     return frozenset(keys)
 
 
 def roles_to_strings(roles: HvacRole) -> list[str]:
     return [label for label, flag in _ROLE_LABELS if roles & flag]
+
+
+def profile_is_ignored(profile: HvacDeviceProfile) -> bool:
+    """Pure actuator profiles — out of scope, no telemetry or HA surface."""
+    if profile.roles == HvacRole.NONE:
+        return True
+    return bool(profile.roles & IGNORED_ROLES and not (profile.roles & ~IGNORED_ROLES))
 
 
 def ha_platforms_for_roles(roles: HvacRole) -> list[str]:
@@ -168,12 +181,10 @@ def ha_platforms_for_roles(roles: HvacRole) -> list[str]:
         platforms.add("sensor")
     if roles & HvacRole.PURIFIER:
         platforms.update({"fan", "sensor"})
-    if roles & HvacRole.ACTUATOR:
-        platforms.add("cover")
     if roles & HvacRole.SYSTEM:
-        platforms.add("select")
+        platforms.add("number")
     if roles & HvacRole.SCHEDULER:
-        platforms.add("schedule")
+        platforms.add("number")
     return sorted(platforms)
 
 
@@ -201,6 +212,7 @@ def is_placeholder_thermostat(
 
 def unimplemented_roles_for_telemetry(roles: HvacRole) -> list[str]:
     flags = roles & UNIMPLEMENTED_ROLES
+    flags &= ~IGNORED_ROLES
     if roles & HvacRole.THERMOSTAT:
         flags &= ~HvacRole.ACTUATOR
     if roles & (HvacRole.TERMINAL | HvacRole.PURIFIER):
@@ -228,7 +240,7 @@ def profile_should_raise_repair_issue(
     """Repair only when an unimplemented role remains or unknown keys on a non-HA profile."""
     if not profile_needs_telemetry(profile, unknown_keys):
         return False
-    if profile.roles & REPAIR_SKIP_ROLES and not (profile.roles & ~REPAIR_SKIP_ROLES):
+    if profile_is_ignored(profile):
         return False
     if unimplemented_roles_for_telemetry(profile.roles):
         return True
@@ -248,7 +260,7 @@ def profile_needs_telemetry(
 ) -> bool:
     if profile.roles == HvacRole.NONE:
         return False
-    if profile.roles & NOTIFICATION_SKIP_ROLES and not (profile.roles & ~NOTIFICATION_SKIP_ROLES):
+    if profile_is_ignored(profile):
         return False
     if unknown_keys:
         return True
