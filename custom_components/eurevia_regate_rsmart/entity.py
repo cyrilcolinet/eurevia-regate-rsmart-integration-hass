@@ -108,12 +108,15 @@ async def async_publish_hvac_command(
     payload: dict[str, Any],
 ) -> None:
     if not device_id:
-        raise MqttNotConnected("No HVAC device id")
+        raise MqttNotConnected("mqtt_no_device")
     client = store.client
     if client is None or not store.mqtt_connected:
-        raise MqttNotConnected("MQTT disconnected")
+        raise MqttNotConnected()
     topic = topic_hvac_set(store.prefix, device_id)
-    await client.publish(topic, json.dumps(payload).encode("utf-8"))
+    try:
+        await client.publish(topic, json.dumps(payload).encode("utf-8"))
+    except RuntimeError as err:
+        raise MqttNotConnected() from err
 
 
 async def async_publish_hvac_commands(
@@ -122,14 +125,17 @@ async def async_publish_hvac_commands(
     payload: dict[str, Any],
 ) -> None:
     if not device_ids:
-        raise MqttNotConnected("No HVAC device ids")
+        raise MqttNotConnected("mqtt_no_device")
     encoded = json.dumps(payload).encode("utf-8")
     client = store.client
     if client is None or not store.mqtt_connected:
-        raise MqttNotConnected("MQTT disconnected")
+        raise MqttNotConnected()
     for device_id in device_ids:
         topic = topic_hvac_set(store.prefix, device_id)
-        await client.publish(topic, encoded)
+        try:
+            await client.publish(topic, encoded)
+        except RuntimeError as err:
+            raise MqttNotConnected() from err
 
 
 def bloc_cvc_device_info(entry: ConfigEntry) -> DeviceInfo:

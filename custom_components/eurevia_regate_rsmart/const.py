@@ -24,6 +24,10 @@ SIGNAL_HVAC_DEVICE_STATE_UPDATED = f"{DOMAIN}_hvac_device_state_updated"
 SIGNAL_DISCOVERY_UPDATED = f"{DOMAIN}_discovery_updated"
 SIGNAL_MQTT_CONNECTION_CHANGED = f"{DOMAIN}_mqtt_connection_changed"
 
+MQTT_DISCONNECTED_REPAIR_DELAY_S = 600
+MQTT_STALE_THRESHOLD_S = 900
+MQTT_STALE_CHECK_INTERVAL_S = 300
+
 TELEMETRY_GITHUB_REPO = "cyrilcolinet/eurevia-regate-rsmart-integration-hass"
 TELEMETRY_ISSUE_LABELS = ("device-telemetry",)
 

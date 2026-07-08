@@ -17,9 +17,12 @@ from ..lib.telemetry_profile import (
     is_placeholder_thermostat,
     profile_fingerprint,
     profile_needs_telemetry,
+    profile_supported_by_integration,
     profile_to_export_dict,
+    roles_to_strings,
     unknown_keys_for_profile,
 )
+from ..repair import async_clear_unsupported_profile_issues, async_sync_unsupported_profile_issues
 
 STORAGE_VERSION = 1
 
@@ -45,6 +48,7 @@ class EureviaTelemetryReporter:
         hvac_raw: dict[str, dict[str, Any]],
     ) -> None:
         if not self._entry.options.get(CONF_TELEMETRY, False):
+            async_clear_unsupported_profile_issues(self._hass, self._entry.entry_id)
             return
         if not discovery.profiles:
             return
@@ -53,6 +57,7 @@ class EureviaTelemetryReporter:
         integration_version = _integration_version()
         ha_version = _ha_version(self._hass)
         new_count = 0
+        unsupported_repairs: list[tuple[str, str]] = []
 
         for profile in discovery.profiles.values():
             if is_placeholder_thermostat(profile, hvac_raw):
@@ -76,6 +81,11 @@ class EureviaTelemetryReporter:
                 continue
 
             needs_telemetry = profile_needs_telemetry(profile, unknown_keys)
+            supported = profile_supported_by_integration(profile, unknown_keys)
+
+            if needs_telemetry and not supported:
+                role_label = ", ".join(roles_to_strings(profile.roles))
+                unsupported_repairs.append((fingerprint, role_label))
 
             if fingerprint in reported:
                 if not needs_telemetry:
@@ -91,6 +101,8 @@ class EureviaTelemetryReporter:
             self._notify_new_profile(export_dict, fingerprint)
             reported.add(fingerprint)
             await self._save_reported(reported)
+
+        async_sync_unsupported_profile_issues(self._hass, self._entry, unsupported_repairs)
 
         if new_count:
             _LOGGER.info(

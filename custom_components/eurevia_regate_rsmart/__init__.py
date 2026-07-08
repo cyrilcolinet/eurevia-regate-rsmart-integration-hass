@@ -22,6 +22,9 @@ from .const import (
     CONF_ZONES,
     DOMAIN,
     LOGGER,
+    MQTT_DISCONNECTED_REPAIR_DELAY_S,
+    MQTT_STALE_CHECK_INTERVAL_S,
+    MQTT_STALE_THRESHOLD_S,
     SIGNAL_DISCOVERY_UPDATED,
     SIGNAL_HVAC_DEVICE_STATE_UPDATED,
     SIGNAL_MQTT_CONNECTION_CHANGED,
@@ -39,9 +42,18 @@ from .lib import (
     is_thermostat_hvac_payload,
     normalize_th_id,
 )
+from .lib.observability import is_mqtt_stale
 from .mqtt import MqttConnInfo, SimpleMqttClient
-from .repair import async_create_zones_empty_issue, async_delete_zones_empty_issue
-from .store import RegateStore
+from .repair import (
+    async_clear_all_entry_issues,
+    async_create_mqtt_disconnected_issue,
+    async_create_mqtt_stale_issue,
+    async_create_zones_empty_issue,
+    async_delete_mqtt_disconnected_issue,
+    async_delete_mqtt_stale_issue,
+    async_delete_zones_empty_issue,
+)
+from .store import RegateStore, cancel_scheduled_checks
 
 _LOGGER = logging.getLogger(LOGGER)
 
@@ -93,13 +105,60 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
         store.mqtt_connected = connected
         async_dispatcher_send(hass, f"{SIGNAL_MQTT_CONNECTION_CHANGED}_{entry.entry_id}")
 
+    def _cancel_scheduled_checks() -> None:
+        cancel_scheduled_checks(store)
+
     @callback
     def _on_mqtt_connected() -> None:
         _set_mqtt_connected(True)
         if store.client:
             store.client.dismiss_notification()
         store.mqtt_disconnect_notified = False
+        _cancel_scheduled_checks()
         async_delete_zones_empty_issue(hass, entry.entry_id)
+        async_delete_mqtt_disconnected_issue(hass, entry.entry_id)
+        async_delete_mqtt_stale_issue(hass, entry.entry_id)
+        _schedule_stale_check()
+
+    @callback
+    def _check_mqtt_disconnected_repair(_now) -> None:
+        store.mqtt_disconnect_repair_unsub = None
+        if store.mqtt_connected:
+            return
+        async_create_mqtt_disconnected_issue(hass, entry)
+
+    @callback
+    def _schedule_disconnect_repair() -> None:
+        if store.mqtt_disconnect_repair_unsub:
+            store.mqtt_disconnect_repair_unsub()
+        store.mqtt_disconnect_repair_unsub = async_call_later(
+            hass,
+            MQTT_DISCONNECTED_REPAIR_DELAY_S,
+            _check_mqtt_disconnected_repair,
+        )
+
+    @callback
+    def _check_mqtt_stale(_now) -> None:
+        store.mqtt_stale_check_unsub = None
+        now = datetime.now(UTC)
+        if is_mqtt_stale(
+            connected=store.mqtt_connected,
+            last_message_at=store.last_mqtt_message_at,
+            now=now,
+            threshold_s=MQTT_STALE_THRESHOLD_S,
+        ):
+            async_create_mqtt_stale_issue(hass, entry)
+        _schedule_stale_check()
+
+    @callback
+    def _schedule_stale_check() -> None:
+        if store.mqtt_stale_check_unsub:
+            store.mqtt_stale_check_unsub()
+        store.mqtt_stale_check_unsub = async_call_later(
+            hass,
+            MQTT_STALE_CHECK_INTERVAL_S,
+            _check_mqtt_stale,
+        )
 
     @callback
     def _on_mqtt_disconnected(reason: str) -> None:
@@ -119,6 +178,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
                 f"Last error: {reason}"
             )
         store.client._notify_ha(message)
+        _schedule_disconnect_repair()
 
     def recompute_zone_mappings() -> bool:
         zone_cfg = _select_zone_cfg(entry, store.zones_raw)
@@ -155,6 +215,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
 
     async def on_message(topic: str, payload: bytes) -> None:
         store.last_mqtt_message_at = datetime.now(UTC)
+        async_delete_mqtt_stale_issue(hass, entry.entry_id)
         try:
             text = payload.decode("utf-8", errors="ignore")
         except Exception:
@@ -255,6 +316,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
 
     recompute_all()
     _set_mqtt_connected(client.is_connected)
+    _schedule_stale_check()
 
     @callback
     def _check_zones_empty(_now) -> None:
@@ -275,7 +337,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntr
         return False
 
     store: RegateStore | None = hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
-    async_delete_zones_empty_issue(hass, entry.entry_id)
+    if store:
+        cancel_scheduled_checks(store)
+    async_clear_all_entry_issues(hass, entry.entry_id)
     if store and store.client:
         try:
             store.client.dismiss_notification()

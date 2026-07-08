@@ -47,3 +47,12 @@ _config_entries.ConfigFlowResult = dict
 
 _device_registry = sys.modules["homeassistant.helpers.device_registry"]
 _device_registry.DeviceInfo = dict
+
+_exceptions = sys.modules["homeassistant.exceptions"]
+
+
+class HomeAssistantError(Exception):
+    pass
+
+
+_exceptions.HomeAssistantError = HomeAssistantError

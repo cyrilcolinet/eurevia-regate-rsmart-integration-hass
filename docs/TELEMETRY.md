@@ -26,6 +26,10 @@ When a **new** MQTT profile is detected (unique fingerprint) **and support is mi
 
 **Never included:** broker host/IP, zone names, thermostat IDs (`Th_ID`, `Th_Name`).
 
+**Repair issues (Settings → Repairs):** prolonged MQTT disconnect (10 min), silent broker (15 min without messages), unsupported HVAC profiles when telemetry is enabled.
+
+**Diagnostics:** unsupported profiles include a `github_issue_url` field (pre-filled link, nothing sent automatically).
+
 **No notification** if the profile is already fully supported (e.g. a zone thermostat with only known keys).
 
 ### Enriched export

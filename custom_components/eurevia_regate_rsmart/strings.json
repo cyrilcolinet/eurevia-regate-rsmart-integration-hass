@@ -29,6 +29,26 @@
     "zones_empty": {
       "title": "No reGATE zones received",
       "description": "No MQTT message was received on the zones topic after 5 minutes for reGATE at {host}. Check that the hub is online and the MQTT prefix matches your installation."
+    },
+    "mqtt_disconnected": {
+      "title": "reGATE MQTT disconnected",
+      "description": "Home Assistant could not maintain the MQTT connection to reGATE at {host} for 10 minutes. Entities are unavailable. Reload the integration from Settings if the hub is back online."
+    },
+    "mqtt_stale": {
+      "title": "reGATE MQTT silent",
+      "description": "MQTT is connected to reGATE at {host} but no message was received for 15 minutes. The hub may be frozen or the prefix may be wrong."
+    },
+    "unsupported_profile": {
+      "title": "Unsupported reGATE MQTT profile",
+      "description": "Roles **{roles}** are not fully supported yet. Enable telemetry notifications or download diagnostics for a pre-filled GitHub issue link."
+    }
+  },
+  "exceptions": {
+    "mqtt_not_connected": {
+      "message": "MQTT connection to reGATE is not available. Try reloading the integration."
+    },
+    "mqtt_no_device": {
+      "message": "No HVAC device is mapped for this command."
     }
   },
   "options": {

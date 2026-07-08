@@ -2,6 +2,7 @@
 
 from eurevia_regate_rsmart.lib.capabilities import HvacRole, classify_hvac_payload
 from eurevia_regate_rsmart.lib.telemetry_profile import (
+    build_github_new_issue_url,
     is_placeholder_thermostat,
     profile_fingerprint,
     profile_needs_telemetry,
@@ -192,3 +193,20 @@ def test_terminal_purifier_profile_from_issue_3_is_supported():
     assert unknown == []
     assert profile_supported_by_integration(profile, unknown) is True
     assert profile_needs_telemetry(profile, unknown) is False
+
+
+def test_github_issue_url_truncates_when_too_long():
+    export_dict = {
+        "roles": ["actuator"],
+        "mqtt_keys": [f"Key_{index}" for index in range(500)],
+        "unknown_keys": [f"Unknown_{index}" for index in range(200)],
+        "supported_by_integration": False,
+        "integration_version": "1.2.1",
+        "ha_version": "2025.1.0",
+        "telemetry_reason": "unknown_mqtt_keys",
+    }
+    fingerprint = profile_fingerprint(export_dict)
+    url = build_github_new_issue_url(export_dict, fingerprint)
+
+    assert len(url) <= 7500
+    assert "truncated" in url or "body=" in url

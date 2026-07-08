@@ -7,7 +7,7 @@ Short version: [README](../README.md) · detailed view below.
 | | |
 |---|---|
 | **Latest GitHub release** | [releases](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases/latest) |
-| **Repository `manifest.json`** | 1.2.0 |
+| **Repository `manifest.json`** | 1.2.1 |
 
 ## Status by feature
 
@@ -39,6 +39,14 @@ Short version: [README](../README.md) · detailed view below.
 - Diagnostics enriched with HVAC profiles and key lists
 
 Entity detail: [SUPPORTED_DEVICES.md](SUPPORTED_DEVICES.md) · Protocol: [MQTT.md](MQTT.md) · Telemetry: [TELEMETRY.md](TELEMETRY.md)
+
+## v1.2.1
+
+- `MqttNotConnected` HA exception with translations; publish wraps `RuntimeError`
+- Repair issues: MQTT disconnected (10 min), MQTT stale (15 min), unsupported profiles
+- Diagnostics `github_issue_url` for unsupported HVAC profiles
+- Telemetry repair sync + expanded tests (dedup, dismiss, URL truncation)
+- GitHub `device_telemetry` issue template aligned with diagnostics export
 
 ## v1.2.0
 

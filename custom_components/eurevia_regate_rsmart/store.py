@@ -32,12 +32,23 @@ class RegateStore:
     mqtt_connected: bool = False
     mqtt_disconnect_notified: bool = False
     last_mqtt_message_at: datetime | None = None
+    mqtt_disconnect_repair_unsub: Any = None
+    mqtt_stale_check_unsub: Any = None
     added_entities: dict[str, set[str]] = field(default_factory=dict)
     purifier_entity_added: bool = False
     climate_global_added: bool = False
 
     def added(self, platform_key: str) -> set[str]:
         return self.added_entities.setdefault(platform_key, set())
+
+
+def cancel_scheduled_checks(store: RegateStore) -> None:
+    if store.mqtt_disconnect_repair_unsub:
+        store.mqtt_disconnect_repair_unsub()
+        store.mqtt_disconnect_repair_unsub = None
+    if store.mqtt_stale_check_unsub:
+        store.mqtt_stale_check_unsub()
+        store.mqtt_stale_check_unsub = None
 
 
 def get_store(hass: HomeAssistant, entry_id: str) -> RegateStore:
