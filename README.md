@@ -52,11 +52,12 @@ The [Eurevia reGATE](https://www.eurevia.com/rsmart/) hub (rSMART ecosystem) exp
 ### Supported
 
 - **Global thermostat** — sync mode, setpoint and boost (`fan_mode`) to all zones
-- **Per-zone thermostat** — comfort / eco / reduced presets, target temperature, min/max limits
+- **Per-zone thermostat** — comfort / eco / reduced presets, target temperature, min/max limits, writable setpoints (`number`)
 - **Air purifier** on the hydraulic terminal — auto / mini / moyen / maxi presets (`fan`)
 - **Terminal (Bloc CVC)** — water/air temperature, fan speed, valve command, PID config, … (`sensor`)
 - **Per zone** — humidity, battery, LQI, comms, firmware version, … (`sensor`)
 - **Window open** and **presence** per climatic zone (`binary_sensor`)
+- **MQTT connectivity** diagnostic sensor on Bloc CVC (`sensor`)
 
 ### Beta
 

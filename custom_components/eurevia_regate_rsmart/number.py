@@ -2,28 +2,21 @@
 
 from __future__ import annotations
 
-import json
-from typing import Any
-
 from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import (
-    DOMAIN,
-    SIGNAL_DISCOVERY_UPDATED,
-    SIGNAL_ZONE_STATE_UPDATED,
-    SIGNAL_ZONES_UPDATED,
-    topic_hvac_set,
-)
-from .entity import EureviaRegateEntity, zone_device_info
+from .const import DOMAIN, SIGNAL_DISCOVERY_UPDATED, SIGNAL_ZONES_UPDATED
+from .entity import EureviaZoneEntity, async_publish_hvac_command, zone_device_info
 from .lib import as_float
-from .lib.setpoint_registry import SetpointNumberSpec, setpoint_specs_for_keys
+from .lib.entity_discovery import zone_entity_cache_key, zone_number_specs_for_zone
+from .lib.setpoint_registry import SetpointNumberSpec
+from .platform_helpers import setup_dynamic_entities, zone_keys_from_store
+from .store import get_store
 
 
-class EureviaRegateZoneSetpointNumber(EureviaRegateEntity, NumberEntity):
+class EureviaRegateZoneSetpointNumber(EureviaZoneEntity, NumberEntity):
     _attr_mode = NumberMode.BOX
 
     def __init__(
@@ -34,24 +27,14 @@ class EureviaRegateZoneSetpointNumber(EureviaRegateEntity, NumberEntity):
         zone_key: str,
         spec: SetpointNumberSpec,
     ) -> None:
-        super().__init__(hass, entry, entry_id)
-        self._zone_key = zone_key
+        super().__init__(hass, entry, entry_id, zone_key)
         self._spec = spec
-        self._unsub = None
         self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_zone_{zone_key}_{spec.suffix}"
         self._attr_translation_key = spec.translation_key
         self._attr_native_unit_of_measurement = spec.unit
         self._attr_native_step = spec.step
         if spec.entity_category is not None:
             self._attr_entity_category = spec.entity_category
-
-    @property
-    def _zone_cfg(self) -> dict:
-        return (self._store.get("zone_cfg") or {}).get(self._zone_key, {}) or {}
-
-    @property
-    def _zone_state(self) -> dict:
-        return (self._store.get("zone_state") or {}).get(self._zone_key, {}) or {}
 
     @property
     def device_info(self):
@@ -78,29 +61,12 @@ class EureviaRegateZoneSetpointNumber(EureviaRegateEntity, NumberEntity):
         return 35.0
 
     async def async_set_native_value(self, value: float) -> None:
-        hvac_id = (self._store.get("zone_key_to_hvac_id") or {}).get(self._zone_key)
-        if not hvac_id:
-            return
-        topic = topic_hvac_set(self._store["prefix"], hvac_id)
-        payload: dict[str, Any] = {self._spec.mqtt_key: float(value)}
-        await self._store["client"].publish(topic, json.dumps(payload).encode("utf-8"))
-
-    async def async_added_to_hass(self) -> None:
-        @callback
-        def _updated(zone_key: str) -> None:
-            if zone_key == self._zone_key:
-                self.async_write_ha_state()
-
-        self._unsub = async_dispatcher_connect(
-            self.hass,
-            f"{SIGNAL_ZONE_STATE_UPDATED}_{self._entry_id}",
-            _updated,
+        hvac_id = self._store.zone_key_to_hvac_id.get(self._zone_key)
+        await async_publish_hvac_command(
+            self._store,
+            str(hvac_id) if hvac_id else "",
+            {self._spec.mqtt_key: float(value)},
         )
-
-    async def async_will_remove_from_hass(self) -> None:
-        if self._unsub:
-            self._unsub()
-            self._unsub = None
 
 
 async def async_setup_entry(
@@ -108,23 +74,17 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    store = hass.data[DOMAIN][entry.entry_id]
-    added: set[str] = store.setdefault("added_zone_number_keys", set())
-
-    def zone_keys() -> list[str]:
-        return list((store.get("zone_cfg") or {}).keys())
+    store = get_store(hass, entry.entry_id)
+    added = store.added("number")
 
     def build_entities() -> list[NumberEntity]:
-        discovery = store.get("discovery")
+        discovery = store.discovery
         zone_field_keys = discovery.zone_keys if discovery else frozenset()
-        specs = setpoint_specs_for_keys(zone_field_keys)
         entities: list[NumberEntity] = []
-        for zone_key in zone_keys():
-            zone_state = (store.get("zone_state") or {}).get(zone_key) or {}
-            for spec in specs:
-                if spec.mqtt_key not in zone_state:
-                    continue
-                entity_key = f"{zone_key}:{spec.suffix}"
+        for zone_key in zone_keys_from_store(store):
+            zone_state = store.zone_state.get(zone_key) or {}
+            for spec in zone_number_specs_for_zone(zone_key, zone_state, zone_field_keys):
+                entity_key = zone_entity_cache_key(zone_key, spec.suffix)
                 if entity_key in added:
                     continue
                 entities.append(
@@ -133,21 +93,10 @@ async def async_setup_entry(
                 added.add(entity_key)
         return entities
 
-    async_add_entities(build_entities(), update_before_add=False)
-
-    @callback
-    def _zones_updated() -> None:
-        async_add_entities(build_entities(), update_before_add=False)
-
-    @callback
-    def _discovery_updated() -> None:
-        async_add_entities(build_entities(), update_before_add=False)
-
-    entry.async_on_unload(
-        async_dispatcher_connect(hass, f"{SIGNAL_ZONES_UPDATED}_{entry.entry_id}", _zones_updated)
-    )
-    entry.async_on_unload(
-        async_dispatcher_connect(
-            hass, f"{SIGNAL_DISCOVERY_UPDATED}_{entry.entry_id}", _discovery_updated
-        )
+    setup_dynamic_entities(
+        hass,
+        entry,
+        async_add_entities,
+        build_entities,
+        (SIGNAL_ZONES_UPDATED, SIGNAL_DISCOVERY_UPDATED),
     )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from homeassistant.components import persistent_notification
@@ -21,6 +22,8 @@ from ..lib.telemetry_profile import (
 )
 
 STORAGE_VERSION = 1
+
+_LOGGER = logging.getLogger(LOGGER)
 
 
 class EureviaTelemetryReporter:
@@ -65,7 +68,7 @@ class EureviaTelemetryReporter:
                 )
                 fingerprint = profile_fingerprint(export_dict)
             except (TypeError, ValueError) as err:
-                LOGGER.warning(
+                _LOGGER.warning(
                     "Skipping telemetry for HVAC profile roles=%s: %s",
                     profile.roles,
                     err,
@@ -79,17 +82,18 @@ class EureviaTelemetryReporter:
                     self._dismiss_profile_notification(fingerprint)
                 continue
 
-            reported.add(fingerprint)
-            await self._save_reported(reported)
-
             if not needs_telemetry:
+                reported.add(fingerprint)
+                await self._save_reported(reported)
                 continue
 
             new_count += 1
             self._notify_new_profile(export_dict, fingerprint)
+            reported.add(fingerprint)
+            await self._save_reported(reported)
 
         if new_count:
-            LOGGER.info(
+            _LOGGER.info(
                 "Notified about %s new reGATE HVAC profile(s) (opt-in telemetry)",
                 new_count,
             )

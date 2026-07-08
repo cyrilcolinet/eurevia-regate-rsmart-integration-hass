@@ -16,6 +16,7 @@ from .lib.telemetry_profile import (
     profile_to_export_dict,
     unknown_keys_for_profile,
 )
+from .store import RegateStore
 
 REDACT = {CONF_HOST, "Th_ID", "Th_Name", "Zone_Name", "Custom_Zone_Name"}
 
@@ -48,9 +49,10 @@ async def async_get_config_entry_diagnostics(
 ) -> dict[str, Any]:
     from . import __version__
 
-    store = hass.data.get(DOMAIN, {}).get(entry.entry_id, {})
-    discovery = store.get("discovery")
-    hvac_raw = store.get("hvac_raw") or {}
+    raw_store = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    store: RegateStore | None = raw_store if isinstance(raw_store, RegateStore) else None
+    discovery = store.discovery if store else None
+    hvac_raw = store.hvac_raw if store else {}
     ha_version = str(getattr(hass.config, "version", "unknown"))
     profiles = (
         _profile_exports(
@@ -62,6 +64,9 @@ async def async_get_config_entry_diagnostics(
         if discovery
         else []
     )
+    last_message = (
+        store.last_mqtt_message_at.isoformat() if store and store.last_mqtt_message_at else None
+    )
     return {
         "entry": {
             "title": entry.title,
@@ -69,8 +74,10 @@ async def async_get_config_entry_diagnostics(
             CONF_PREFIX: entry.data.get(CONF_PREFIX),
             "telemetry_enabled": entry.options.get(CONF_TELEMETRY, False),
         },
-        "zones_configured": len(store.get("zone_cfg") or {}),
-        "zones_raw_count": len(store.get("zones_raw") or []),
+        "mqtt_connected": store.mqtt_connected if store else None,
+        "last_mqtt_message_at": last_message,
+        "zones_configured": len(store.zone_cfg) if store else 0,
+        "zones_raw_count": len(store.zones_raw) if store else 0,
         "hvac_devices_count": len(hvac_raw),
         "discovery": {
             "terminal_primary_id": discovery.terminal_primary_id if discovery else None,
@@ -85,9 +92,11 @@ async def async_get_config_entry_diagnostics(
             "zone_keys": sorted(discovery.zone_keys) if discovery else [],
         },
         "hvac_profiles": profiles,
-        "zone_mappings": list((store.get("zone_key_to_hvac_id") or {}).items()),
+        "zone_mappings": list(store.zone_key_to_hvac_id.items()) if store else [],
         "sample_zone_state": async_redact_data(
-            next(iter((store.get("zone_state") or {}).values()), {}),
+            next(iter(store.zone_state.values()), {}),
             REDACT,
-        ),
+        )
+        if store and store.zone_state
+        else {},
     }

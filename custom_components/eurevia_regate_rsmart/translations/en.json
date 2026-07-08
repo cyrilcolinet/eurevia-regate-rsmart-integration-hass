@@ -21,7 +21,14 @@
     "error": {
       "cannot_connect": "Cannot connect to the MQTT broker.",
       "invalid_mqtt": "Connected to the host but MQTT handshake failed.",
+      "regate_not_found": "MQTT broker reachable but no reGATE zones payload on the configured prefix.",
       "unknown": "Unexpected error during setup."
+    }
+  },
+  "issues": {
+    "zones_empty": {
+      "title": "No reGATE zones received",
+      "description": "No MQTT message was received on the zones topic after 5 minutes for reGATE at {host}. Check that the hub is online and the MQTT prefix matches your installation."
     }
   },
   "options": {
@@ -134,6 +141,7 @@
       "terminal_pid_max_interval_cfg": { "name": "PID max interval (cfg)" },
       "terminal_pid_prop_band_cfg": { "name": "PID proportional band (cfg)" },
       "terminal_pid_smooth_factor_cfg": { "name": "PID smooth factor (cfg)" },
+      "connectivity": { "name": "MQTT connection" },
       "zone_humidity": { "name": "Humidity" },
       "zone_battery_state": { "name": "Battery" },
       "zone_battery_low": { "name": "Battery low" },

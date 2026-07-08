@@ -111,6 +111,9 @@ def discover_hvac_devices(
     if purifier_command is None and purifiers:
         purifier_command = purifiers[0]
 
+    systems = ids_with_role(HvacRole.SYSTEM)
+    schedulers = ids_with_role(HvacRole.SCHEDULER)
+
     terminal_keys: set[str] = set()
     for device_id in terminals:
         payload = hvac_raw.get(device_id)
@@ -128,12 +131,10 @@ def discover_hvac_devices(
         terminal_read_ids=tuple(terminals),
         purifier_command_id=purifier_command,
         purifier_read_ids=tuple(purifiers),
-        system_id=ids_with_role(HvacRole.SYSTEM)[0] if ids_with_role(HvacRole.SYSTEM) else None,
+        system_id=systems[0] if systems else None,
         thermostat_ids=tuple(ids_with_role(HvacRole.THERMOSTAT)),
         actuator_ids=tuple(ids_with_role(HvacRole.ACTUATOR)),
-        scheduler_id=ids_with_role(HvacRole.SCHEDULER)[0]
-        if ids_with_role(HvacRole.SCHEDULER)
-        else None,
+        scheduler_id=schedulers[0] if schedulers else None,
         terminal_keys=frozenset(terminal_keys),
         zone_keys=frozenset(zone_keys),
     )

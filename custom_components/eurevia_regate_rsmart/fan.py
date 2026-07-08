@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from enum import IntEnum
 from typing import Any
 
@@ -12,14 +11,11 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import (
-    DOMAIN,
-    SIGNAL_DISCOVERY_UPDATED,
-    SIGNAL_HVAC_DEVICE_STATE_UPDATED,
-    topic_hvac_set,
-)
-from .entity import EureviaRegateEntity, bloc_cvc_device_info
+from .const import DOMAIN, SIGNAL_DISCOVERY_UPDATED, SIGNAL_HVAC_DEVICE_STATE_UPDATED
+from .entity import EureviaRegateEntity, async_publish_hvac_commands, bloc_cvc_device_info
 from .lib import as_int, resolve_purifier_state
+from .platform_helpers import setup_dynamic_entities
+from .store import get_store
 
 
 class PMode(IntEnum):
@@ -48,27 +44,20 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    store = hass.data[DOMAIN][entry.entry_id]
-    added: bool = store.setdefault("added_purifier", False)
+    store = get_store(hass, entry.entry_id)
 
     def build_entities() -> list[FanEntity]:
-        nonlocal added
-        discovery = store.get("discovery")
-        if added or not discovery or not discovery.has_purifier:
+        if store.purifier_entity_added or not store.discovery.has_purifier:
             return []
-        added = True
+        store.purifier_entity_added = True
         return [EureviaRegatePurifierFan(hass, entry, entry.entry_id)]
 
-    async_add_entities(build_entities(), update_before_add=False)
-
-    @callback
-    def _discovery_updated() -> None:
-        async_add_entities(build_entities(), update_before_add=False)
-
-    entry.async_on_unload(
-        async_dispatcher_connect(
-            hass, f"{SIGNAL_DISCOVERY_UPDATED}_{entry.entry_id}", _discovery_updated
-        )
+    setup_dynamic_entities(
+        hass,
+        entry,
+        async_add_entities,
+        build_entities,
+        (SIGNAL_DISCOVERY_UPDATED,),
     )
 
 
@@ -85,19 +74,15 @@ class EureviaRegatePurifierFan(EureviaRegateEntity, FanEntity):
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, entry_id: str) -> None:
         super().__init__(hass, entry, entry_id)
-        self._unsub = None
+        self._hvac_unsub = None
         self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_purifier"
 
     @property
     def _command_device_id(self) -> str | None:
-        discovery = self._store.get("discovery")
-        return discovery.purifier_command_id if discovery else None
+        return self._store.discovery.purifier_command_id
 
     def _get_hvac_state(self) -> tuple[dict[str, Any], str | None]:
-        return resolve_purifier_state(
-            self._store.get("hvac_raw") or {},
-            self._store.get("discovery"),
-        )
+        return resolve_purifier_state(self._store.hvac_raw, self._store.discovery)
 
     @property
     def device_info(self):
@@ -150,6 +135,7 @@ class EureviaRegatePurifierFan(EureviaRegateEntity, FanEntity):
         await self._publish({"P_Mode": int(PMode.AUTO)})
 
     async def async_turn_off(self, **kwargs: Any) -> None:
+        # reGATE has no true off — AUTO stops boost/timer (see SUPPORTED_DEVICES.md).
         await self._publish({"P_Mode": int(PMode.AUTO), "P_Boost": False, "P_Timer": False})
 
     async def async_set_percentage(self, percentage: int) -> None:
@@ -167,18 +153,11 @@ class EureviaRegatePurifierFan(EureviaRegateEntity, FanEntity):
         await self._publish({"P_Mode": int(mode)})
 
     async def _publish(self, payload: dict[str, Any]) -> None:
-        discovery = self._store.get("discovery")
+        discovery = self._store.discovery
         device_ids = list(discovery.purifier_read_ids) if discovery else []
         if not device_ids and self._command_device_id:
             device_ids = [self._command_device_id]
-        if not device_ids:
-            return
-        client = self._store["client"]
-        prefix = self._store["prefix"]
-        encoded = json.dumps(payload).encode("utf-8")
-        for device_id in device_ids:
-            topic = topic_hvac_set(prefix, device_id)
-            await client.publish(topic, encoded)
+        await async_publish_hvac_commands(self._store, device_ids, payload)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -207,7 +186,8 @@ class EureviaRegatePurifierFan(EureviaRegateEntity, FanEntity):
         return out
 
     async def async_added_to_hass(self) -> None:
-        discovery = self._store.get("discovery")
+        await super().async_added_to_hass()
+        discovery = self._store.discovery
         device_ids = list(discovery.purifier_read_ids) if discovery else []
 
         @callback
@@ -215,13 +195,14 @@ class EureviaRegatePurifierFan(EureviaRegateEntity, FanEntity):
             if device_id in device_ids:
                 self.async_write_ha_state()
 
-        self._unsub = async_dispatcher_connect(
+        self._hvac_unsub = async_dispatcher_connect(
             self.hass,
             f"{SIGNAL_HVAC_DEVICE_STATE_UPDATED}_{self._entry_id}",
             _updated,
         )
 
     async def async_will_remove_from_hass(self) -> None:
-        if self._unsub:
-            self._unsub()
-            self._unsub = None
+        if self._hvac_unsub:
+            self._hvac_unsub()
+            self._hvac_unsub = None
+        await super().async_will_remove_from_hass()

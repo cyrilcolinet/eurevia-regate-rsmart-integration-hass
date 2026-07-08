@@ -23,6 +23,8 @@ _HA_STUBS = [
     "homeassistant.helpers.event",
     "homeassistant.helpers.selector",
     "homeassistant.helpers.area_registry",
+    "homeassistant.helpers.issue_registry",
+    "homeassistant.helpers.storage",
     "homeassistant.components",
     "homeassistant.components.climate",
     "homeassistant.components.climate.const",

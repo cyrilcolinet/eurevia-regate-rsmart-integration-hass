@@ -10,6 +10,7 @@ from homeassistant.helpers import selector
 
 from .const import CONF_TELEMETRY, CONF_ZONES
 from .lib import slugify_snake
+from .store import get_store
 
 
 class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
@@ -20,8 +21,8 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
         self._telemetry = bool(config_entry.options.get(CONF_TELEMETRY, False))
 
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
-        store = self.hass.data.get(self._entry.domain, {}).get(self._entry.entry_id, {})
-        self._zones_raw = store.get("zones_raw") or []
+        store = get_store(self.hass, self._entry.entry_id)
+        self._zones_raw = store.zones_raw or []
         existing = dict(self._entry.options.get(CONF_ZONES, {}))
 
         zone_choices: dict[str, str] = {}
@@ -73,8 +74,8 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
         return await self.async_step_zones()
 
     async def async_step_zones(self, user_input: dict | None = None) -> ConfigFlowResult:
-        store = self.hass.data.get(self._entry.domain, {}).get(self._entry.entry_id, {})
-        zones_raw = store.get("zones_raw") or self._zones_raw
+        store = get_store(self.hass, self._entry.entry_id)
+        zones_raw = store.zones_raw or self._zones_raw
         existing = dict(self._entry.options.get(CONF_ZONES, {}))
         selected = [zone for zone in zones_raw if zone.get("id") in self._selected_ids]
 

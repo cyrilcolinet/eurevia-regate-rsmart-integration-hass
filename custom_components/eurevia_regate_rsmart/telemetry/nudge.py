@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from homeassistant.components import persistent_notification
@@ -10,6 +11,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
 from ..const import CONF_TELEMETRY, CONF_TELEMETRY_ONBOARDING, DOMAIN, LOGGER
+
+_LOGGER = logging.getLogger(LOGGER)
 
 STORAGE_VERSION = 1
 TELEMETRY_NUDGE_LEGACY_VERSION = "1.1.0"
@@ -74,7 +77,7 @@ class EureviaTelemetryNudge:
         await self._show_notification()
         meta["telemetry_nudge_dismissed"] = True
         await self._save_meta(meta)
-        LOGGER.debug(
+        _LOGGER.debug(
             "Showed one-time telemetry nudge for reGATE entry %s",
             self._entry.entry_id,
         )

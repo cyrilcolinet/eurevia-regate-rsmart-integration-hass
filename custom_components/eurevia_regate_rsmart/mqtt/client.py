@@ -66,8 +66,9 @@ class SimpleMqttClient:
     - SUBSCRIBE QoS0
     - PUBLISH QoS0
     - keepalive PINGREQ
-    - Auto-restart on crash/disconnect (max N attempts)
-    - When restart budget exhausted: stop and emit HA persistent notification
+    - Auto-restart on crash/disconnect (infinite by default)
+    - Optional max attempts for short-lived probes (config flow)
+    - Persistent notification once per disconnect episode (via callbacks)
     """
 
     def __init__(
@@ -76,14 +77,19 @@ class SimpleMqttClient:
         info: MqttConnInfo,
         on_message: OnMessage,
         *,
-        restart_max_attempts: int = 3,
+        restart_max_attempts: int | None = None,
         restart_backoff_s: float = 2.0,
+        restart_backoff_cap_s: float = 60.0,
         notification_id: str = "eurevia_regate_mqtt",
         notification_title: str = "Eurevia reGATE MQTT",
+        on_connected: Callable[[], None] | None = None,
+        on_disconnected: Callable[[str], None] | None = None,
     ) -> None:
         self._hass = hass
         self._info = info
         self._on_message = on_message
+        self._on_connected = on_connected
+        self._on_disconnected = on_disconnected
 
         self._reader: asyncio.StreamReader | None = None
         self._writer: asyncio.StreamWriter | None = None
@@ -100,11 +106,18 @@ class SimpleMqttClient:
         # subscriptions to re-apply after reconnect (clean session)
         self._subs: set[str] = set()
 
-        # restart policy
-        self._restart_max_attempts = max(0, int(restart_max_attempts))
+        # restart policy — None = infinite retries
+        self._restart_max_attempts = restart_max_attempts
         self._restart_backoff_s = max(0.0, float(restart_backoff_s))
+        self._restart_backoff_cap_s = max(1.0, float(restart_backoff_cap_s))
         self._notification_id = notification_id
         self._notification_title = notification_title
+        self._had_successful_connection = False
+        self._disconnect_notified = False
+
+    @property
+    def is_connected(self) -> bool:
+        return self._writer is not None
 
     async def start(self) -> None:
         """Start supervisor loop (connect + maintain)."""
@@ -167,6 +180,13 @@ class SimpleMqttClient:
                 await self._connect_once()
                 attempts = 0
                 last_exc = None
+                if not self._had_successful_connection:
+                    self._had_successful_connection = True
+                    self._disconnect_notified = False
+                    self._call_connected()
+                elif self._disconnect_notified:
+                    self._disconnect_notified = False
+                    self._call_connected()
 
                 # Re-apply subscriptions after reconnect
                 for tf in sorted(self._subs):
@@ -183,30 +203,45 @@ class SimpleMqttClient:
                 last_exc = e
                 attempts += 1
                 _LOGGER.warning(
-                    "MQTT supervisor error (attempt %s/%s): %s",
+                    "MQTT supervisor error (attempt %s): %s",
                     attempts,
-                    self._restart_max_attempts,
                     e,
                 )
 
                 await self._close_transport()
 
-                if attempts > self._restart_max_attempts:
-                    msg = (
-                        "MQTT connection crashed/disconnected too many times "
-                        f"({attempts - 1} restarts). Last error: {repr(last_exc)}"
-                    )
+                if self._had_successful_connection and not self._disconnect_notified:
+                    self._disconnect_notified = True
+                    self._call_disconnected(repr(last_exc))
+
+                if self._restart_max_attempts is not None and attempts > self._restart_max_attempts:
+                    msg = f"MQTT connection failed during setup. Last error: {repr(last_exc)}"
                     _LOGGER.error(msg)
                     self._notify_ha(msg)
-                    # Don't call stop() here — would cancel the supervisor task.
                     self._stop.set()
                     await self._close_transport()
                     return
 
                 backoff = self._restart_backoff_s * (2 ** (attempts - 1))
-                backoff = min(backoff, 30.0)
+                backoff = min(backoff, self._restart_backoff_cap_s)
                 if backoff > 0:
                     await asyncio.sleep(backoff)
+
+    def _call_connected(self) -> None:
+        if self._on_connected is None:
+            return
+        try:
+            self._on_connected()
+        except Exception:
+            _LOGGER.debug("on_connected callback failed", exc_info=True)
+
+    def _call_disconnected(self, reason: str) -> None:
+        if self._on_disconnected is None:
+            return
+        try:
+            self._on_disconnected(reason)
+        except Exception:
+            _LOGGER.debug("on_disconnected callback failed", exc_info=True)
 
     async def _connect_once(self) -> None:
         await self._close_transport()
@@ -376,13 +411,21 @@ class SimpleMqttClient:
             raise ConnectionError(f"RX loop crashed: {e}") from e
 
     def _notify_ha(self, message: str) -> None:
+        configure_url = "/config/integrations/integration/eurevia_regate_rsmart"
+        body = f"{message}\n\n[Open integration settings]({configure_url})"
+
         def _create() -> None:
             persistent_notification.create(
                 self._hass,
-                message,
+                body,
                 title=self._notification_title,
                 notification_id=self._notification_id,
             )
 
-        # same event loop, but safe even if called from weird context
         self._hass.loop.call_soon_threadsafe(_create)
+
+    def dismiss_notification(self) -> None:
+        def _dismiss() -> None:
+            persistent_notification.dismiss(self._hass, self._notification_id)
+
+        self._hass.loop.call_soon_threadsafe(_dismiss)

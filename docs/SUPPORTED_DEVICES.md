@@ -71,7 +71,9 @@ Thermostat HVAC device IDs come from `{prefix}/zigbee/devices` inventory filtere
 | Function | Detail |
 |----------|--------|
 | Presets | auto, mini, moyen, maxi (from `P_Mode`) |
+| Turn off | Sets `P_Mode: AUTO` and clears boost/timer — reGATE has no true off |
 | Discovery | Device with `P_Mode` in retained HVAC payload |
+| Connectivity | Entity becomes `unavailable` when MQTT is disconnected |
 
 ## Terminal sensors (Bloc CVC)
 

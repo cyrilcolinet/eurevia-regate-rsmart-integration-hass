@@ -7,13 +7,13 @@ Short version: [README](../README.md) · detailed view below.
 | | |
 |---|---|
 | **Latest GitHub release** | [releases](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/releases/latest) |
-| **Repository `manifest.json`** | 1.1.1 |
+| **Repository `manifest.json`** | 1.2.0 |
 
 ## Status by feature
 
 | Status | Feature | HA entities |
 |--------|---------|-------------|
-| ✅ Supported | Climatic zones | `climate`, `binary_sensor`, `sensor` |
+| ✅ Supported | Climatic zones | `climate`, `binary_sensor`, `sensor`, `number` |
 | ✅ Supported | Global thermostat (Bloc CVC) | `climate` |
 | ✅ Supported | Per-zone thermostats | `climate` |
 | ✅ Supported | Air purifier (when `P_Mode` present) | `fan` |
@@ -39,6 +39,16 @@ Short version: [README](../README.md) · detailed view below.
 - Diagnostics enriched with HVAC profiles and key lists
 
 Entity detail: [SUPPORTED_DEVICES.md](SUPPORTED_DEVICES.md) · Protocol: [MQTT.md](MQTT.md) · Telemetry: [TELEMETRY.md](TELEMETRY.md)
+
+## v1.2.0
+
+- Typed `RegateStore`, shared platform setup helpers, `EureviaZoneEntity`
+- MQTT infinite reconnect (backoff cap 60s), entities `unavailable` when disconnected
+- Connectivity diagnostic sensor, repair issue when zones topic stays empty
+- Config flow validates reGATE `zones` payload on configured prefix
+- Binary sensors created per-zone only (aligned with sensor/number)
+- Telemetry LOGGER fix, fingerprint saved after notification
+- Centralized `async_publish_hvac_command` with `MqttNotConnected` error
 
 ## v1.0.0 (initial release)
 

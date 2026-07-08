@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import uuid
 
@@ -21,8 +22,9 @@ from .const import (
     DEFAULT_PREFIX,
     DOMAIN,
     LOGGER,
+    topic_zones,
 )
-from .exceptions import CannotConnect, MqttProtocolError
+from .exceptions import CannotConnect, MqttProtocolError, RegateNotFound
 from .mqtt import MqttConnInfo, SimpleMqttClient
 
 _LOGGER = logging.getLogger(LOGGER)
@@ -54,11 +56,13 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
 
         try:
-            await self._validate_broker(host, port)
+            await self._validate_broker(host, port, prefix)
         except CannotConnect:
             errors["base"] = "cannot_connect"
         except MqttProtocolError:
             errors["base"] = "invalid_mqtt"
+        except RegateNotFound:
+            errors["base"] = "regate_not_found"
         except Exception:
             _LOGGER.exception("Unexpected error during broker validation")
             errors["base"] = "unknown"
@@ -109,7 +113,7 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         )
 
-    async def _validate_broker(self, host: str, port: int) -> None:
+    async def _validate_broker(self, host: str, port: int, prefix: str) -> None:
         try:
             _reader, writer = await asyncio.wait_for(asyncio.open_connection(host, port), timeout=5)
         except OSError as exc:
@@ -118,21 +122,45 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         writer.close()
         await writer.wait_closed()
 
+        zones_event = asyncio.Event()
+        zones_valid = False
+
+        async def _on_probe_message(topic: str, payload: bytes) -> None:
+            nonlocal zones_valid
+            if topic != topic_zones(prefix):
+                return
+            try:
+                data = json.loads(payload.decode("utf-8"))
+            except json.JSONDecodeError:
+                return
+            if isinstance(data, list):
+                zones_valid = True
+                zones_event.set()
+
         probe_client: SimpleMqttClient | None = None
-
-        async def _noop(_topic: str, _payload: bytes) -> None:
-            return
-
         conn = MqttConnInfo(
             host=host,
             port=port,
             client_id=f"ha-regate-probe-{uuid.uuid4().hex[:8]}",
             keepalive=10,
         )
-        probe_client = SimpleMqttClient(self.hass, conn, _noop)
+        probe_client = SimpleMqttClient(
+            self.hass,
+            conn,
+            _on_probe_message,
+            restart_max_attempts=2,
+        )
         try:
             await probe_client.start()
-            await asyncio.sleep(0.5)
+            await probe_client.subscribe(topic_zones(prefix))
+            try:
+                await asyncio.wait_for(zones_event.wait(), timeout=8.0)
+            except TimeoutError as exc:
+                raise RegateNotFound(
+                    f"No reGATE zones payload on topic {topic_zones(prefix)}"
+                ) from exc
+            if not zones_valid:
+                raise RegateNotFound(f"Invalid reGATE zones payload on {topic_zones(prefix)}")
         except ConnectionError as exc:
             raise MqttProtocolError(str(exc)) from exc
         finally:

@@ -22,6 +22,7 @@ SIGNAL_ZONES_UPDATED = f"{DOMAIN}_zones_updated"
 SIGNAL_ZONE_STATE_UPDATED = f"{DOMAIN}_zone_state_updated"
 SIGNAL_HVAC_DEVICE_STATE_UPDATED = f"{DOMAIN}_hvac_device_state_updated"
 SIGNAL_DISCOVERY_UPDATED = f"{DOMAIN}_discovery_updated"
+SIGNAL_MQTT_CONNECTION_CHANGED = f"{DOMAIN}_mqtt_connection_changed"
 
 TELEMETRY_GITHUB_REPO = "cyrilcolinet/eurevia-regate-rsmart-integration-hass"
 TELEMETRY_ISSUE_LABELS = ("device-telemetry",)

@@ -90,21 +90,33 @@ Home Assistant requires **platform loaders** and `config_flow.py` at the root of
 
 ```
 custom_components/eurevia_regate_rsmart/
-├── __init__.py, manifest.json, config_flow.py, entity.py
-├── climate.py, sensor.py, fan.py, binary_sensor.py, diagnostics.py
+├── __init__.py, manifest.json, config_flow.py, entity.py, store.py
+├── climate.py, sensor.py, fan.py, binary_sensor.py, number.py
+├── platform_helpers.py, repair.py, diagnostics.py
 ├── const.py, exceptions.py, strings.json, translations/, brand/
 │
-├── mqtt/                   # async MQTT 3.1.1 client
+├── mqtt/                   # async MQTT 3.1.1 client (infinite retry by default)
 │   └── client.py
+│
+├── telemetry/              # opt-in profile notifications
+│   ├── reporter.py
+│   └── nudge.py
 │
 └── lib/                    # pure functions (minimal HA import)
     ├── capabilities.py     # HVAC role auto-discovery
     ├── field_registry.py   # dynamic sensor specs
-    ├── mapping.py          # mode / preset conversion
+    ├── setpoint_registry.py
+    ├── setpoints.py        # mode / active setpoint helpers
+    ├── binary_registry.py  # zone binary sensor specs
+    ├── entity_discovery.py # pure entity creation rules
+    ├── telemetry_profile.py
+    ├── mapping.py          # zone ↔ thermostat ↔ HVAC topology
     └── conversion.py
 ```
 
 Platforms registered in `__init__.py` → `PLATFORMS`: `binary_sensor`, `climate`, `fan`, `number`, `sensor`.
+
+Runtime state lives in `store.RegateStore` (typed per config entry).
 
 ### Import conventions
 
@@ -112,9 +124,20 @@ Platforms registered in `__init__.py` → `PLATFORMS`: `binary_sensor`, `climate
 |---------|------|
 | `lib.capabilities` | MQTT payload → HVAC device profile |
 | `lib.field_registry` | Known MQTT keys → sensor metadata |
-| `lib.mapping` | Mode integers ↔ HA presets |
+| `lib.setpoint_registry` | Writable zone setpoints → number entities |
+| `lib.mapping` | Zone / thermostat / HVAC ID topology |
+| `lib.setpoints` | Active setpoint read/write payloads |
+| `lib.entity_discovery` | Which entities to create per zone |
 | `mqtt.client` | Subscribe / publish to reGATE broker |
+| `entity` | Base entities, MQTT publish helper |
+| `platform_helpers` | Shared dynamic entity setup |
 
-Device roles (terminal, purifier, thermostat, …) are inferred from MQTT payload key patterns — never hardcode HVAC device IDs in platform code.
+### Adding a new MQTT key
+
+1. Add to `field_registry.py` or `setpoint_registry.py` if exposed as entity
+2. If config-only, add to `EXTRA_KNOWN_*` in `telemetry_profile.py`
+3. Add translation keys in `strings.json` + `translations/`
+4. Extend `tests/fixtures/regate_snapshot.json` if the key appears on a supported device
+5. Add a rule in `tests/unit/test_entity_discovery.py` when entity gating applies
 
 See also [CONTRIBUTING.md](../CONTRIBUTING.md) for PR conventions.
