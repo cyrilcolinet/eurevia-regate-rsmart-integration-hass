@@ -60,7 +60,9 @@ def read_active_setpoint(state: dict[str, Any]) -> float | None:
     return as_float(state.get(key))
 
 
-def zone_supports_cooling(state: dict[str, Any], zone_field_keys: frozenset[str] | set[str]) -> bool:
+def zone_supports_cooling(
+    state: dict[str, Any], zone_field_keys: frozenset[str] | set[str]
+) -> bool:
     keys = set(state.keys()) | set(zone_field_keys)
     return bool(keys & ZONE_COOLING_SETPOINT_KEYS)
 
