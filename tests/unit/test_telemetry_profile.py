@@ -93,11 +93,19 @@ def test_fingerprint_is_stable_without_device_id():
     assert profile_fingerprint(export_a) == profile_fingerprint(export_b)
 
 
-def test_actuator_only_device_needs_telemetry():
-    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100})
+def test_actuator_only_device_skips_telemetry_when_keys_known():
+    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Window": "Close"})
     unknown = unknown_keys_for_profile(profile)
 
     assert profile.roles & HvacRole.ACTUATOR
+    assert unknown == []
+    assert profile_needs_telemetry(profile, unknown) is False
+
+
+def test_actuator_only_with_unknown_keys_still_needs_telemetry():
+    profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Mystery": 1})
+    unknown = unknown_keys_for_profile(profile)
+
     assert profile_needs_telemetry(profile, unknown) is True
 
 

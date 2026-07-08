@@ -9,5 +9,6 @@
   "issue_tracker": "https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/issues",
   "loggers": ["custom_components.eurevia_regate_rsmart"],
   "requirements": [],
+  "single_config_entry": true,
   "version": "1.2.1"
 }

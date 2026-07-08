@@ -45,14 +45,6 @@
         "default": "mdi:air-purifier"
       }
     },
-    "binary_sensor": {
-      "window": {
-        "default": "mdi:window-open-variant"
-      },
-      "presence": {
-        "default": "mdi:motion-sensor"
-      }
-    },
     "sensor": {
       "terminal_water_temp": { "default": "mdi:water-thermometer" },
       "terminal_air_temp": { "default": "mdi:thermometer" },

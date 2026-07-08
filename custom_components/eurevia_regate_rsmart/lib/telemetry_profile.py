@@ -160,7 +160,7 @@ def roles_to_strings(roles: HvacRole) -> list[str]:
 def ha_platforms_for_roles(roles: HvacRole) -> list[str]:
     platforms: set[str] = set()
     if roles & HvacRole.THERMOSTAT:
-        platforms.update({"climate", "sensor", "number", "binary_sensor"})
+        platforms.update({"climate", "sensor", "number"})
     if roles & HvacRole.TERMINAL:
         platforms.add("sensor")
     if roles & HvacRole.PURIFIER:
@@ -225,6 +225,8 @@ def profile_needs_telemetry(
     if profile.roles == HvacRole.NONE:
         return False
     if profile.roles & TELEMETRY_SKIP_ROLES and not (profile.roles & ~TELEMETRY_SKIP_ROLES):
+        return False
+    if profile.roles == HvacRole.ACTUATOR and not unknown_keys:
         return False
     if unknown_keys:
         return True

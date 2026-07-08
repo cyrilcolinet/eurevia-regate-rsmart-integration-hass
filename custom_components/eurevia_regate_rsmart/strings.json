@@ -40,7 +40,7 @@
     },
     "unsupported_profile": {
       "title": "Unsupported reGATE MQTT profile",
-      "description": "Roles **{roles}** are not fully supported yet. Enable telemetry notifications or download diagnostics for a pre-filled GitHub issue link."
+      "description": "Roles **{roles}** are detected on your reGATE but not exposed in Home Assistant yet (planned — see roadmap). Download diagnostics from the integration page for a pre-filled GitHub issue link."
     }
   },
   "exceptions": {
@@ -115,14 +115,6 @@
         }
       }
     },
-    "binary_sensor": {
-      "window": {
-        "name": "Window"
-      },
-      "presence": {
-        "name": "Presence"
-      }
-    },
     "sensor": {
       "terminal_water_temp": { "name": "Water temperature" },
       "terminal_air_temp": { "name": "Air temperature" },
@@ -185,7 +177,10 @@
       "zone_stp_eco_h": { "name": "Eco heating" },
       "zone_stp_reduc_c": { "name": "Reduced cooling" },
       "zone_stp_reduc_h": { "name": "Reduced heating" },
-      "zone_tmp_offset": { "name": "Temperature offset" }
+      "zone_tmp_offset": { "name": "Temperature offset" },
+      "system_heating_mode": { "name": "Heating mode" },
+      "system_pac": { "name": "PAC / cooling" },
+      "system_mode": { "name": "System mode" }
     }
   }
 }
