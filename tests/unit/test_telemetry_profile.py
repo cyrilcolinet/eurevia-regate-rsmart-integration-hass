@@ -6,6 +6,7 @@ from eurevia_regate_rsmart.lib.telemetry_profile import (
     is_placeholder_thermostat,
     profile_fingerprint,
     profile_needs_telemetry,
+    profile_should_raise_repair_issue,
     profile_supported_by_integration,
     unknown_keys_for_profile,
 )
@@ -102,11 +103,24 @@ def test_actuator_only_device_skips_telemetry_when_keys_known():
     assert profile_needs_telemetry(profile, unknown) is False
 
 
-def test_actuator_only_with_unknown_keys_still_needs_telemetry():
+def test_actuator_only_with_unknown_keys_skips_telemetry_and_repair():
     profile = classify_hvac_payload("50", {"Pos_Min": 0, "Pos_Max": 100, "Mystery": 1})
     unknown = unknown_keys_for_profile(profile)
 
-    assert profile_needs_telemetry(profile, unknown) is True
+    assert profile_needs_telemetry(profile, unknown) is False
+    assert profile_should_raise_repair_issue(profile, unknown) is False
+
+
+def test_thermostat_with_actuator_role_does_not_repair_for_actuator_label():
+    profile = classify_hvac_payload(
+        "101",
+        {"Th_ID": "abc", "Mode": 1, "Tmp": 21.0, "Stp_Comf": 22.0, "Window": False},
+    )
+    unknown = unknown_keys_for_profile(profile)
+
+    assert profile.roles & HvacRole.THERMOSTAT
+    assert profile.roles & HvacRole.ACTUATOR
+    assert profile_should_raise_repair_issue(profile, unknown) is False
 
 
 def test_terminal_purifier_profile_from_issue_3_is_supported():

@@ -82,7 +82,9 @@ EXTRA_KNOWN_TERMINAL_KEYS = frozenset(
 # Installer / factory test keys — never surfaced in HA or telemetry.
 IGNORED_MQTT_KEY_PREFIXES = ("Test_",)
 
-EXTRA_KNOWN_ACTUATOR_KEYS = frozenset({"Pos_Min", "Pos_Max", "Pos_Cmd"})
+EXTRA_KNOWN_ACTUATOR_KEYS = frozenset(
+    {"Pos_Min", "Pos_Max", "Pos_Cmd", "Window", "Detection"}
+)
 
 EXTRA_KNOWN_SYSTEM_KEYS = frozenset(
     {
@@ -116,8 +118,8 @@ EXTRA_KNOWN_ZONE_CONFIG_KEYS = frozenset(
     }
 )
 
-# Present on every install — tracked on roadmap, not actionable telemetry.
-TELEMETRY_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER
+# Present on every install — tracked on roadmap, not actionable telemetry/repair.
+TELEMETRY_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER | HvacRole.ACTUATOR
 
 UNIMPLEMENTED_ROLES = HvacRole.ACTUATOR | HvacRole.SYSTEM | HvacRole.SCHEDULER
 IMPLEMENTED_ROLES = HvacRole.THERMOSTAT | HvacRole.TERMINAL | HvacRole.PURIFIER
@@ -218,6 +220,25 @@ def profile_supported_by_integration(
     return not unimplemented_roles_for_telemetry(profile.roles)
 
 
+def profile_should_raise_repair_issue(
+    profile: HvacDeviceProfile,
+    unknown_keys: list[str],
+) -> bool:
+    """Repair only when an unimplemented role remains or unknown keys on a non-HA profile."""
+    if not profile_needs_telemetry(profile, unknown_keys):
+        return False
+    if unimplemented_roles_for_telemetry(profile.roles):
+        return True
+    return bool(unknown_keys and not (profile.roles & IMPLEMENTED_ROLES))
+
+
+def repair_role_label_for_profile(profile: HvacDeviceProfile) -> str:
+    unimplemented = unimplemented_roles_for_telemetry(profile.roles)
+    if unimplemented:
+        return ", ".join(unimplemented)
+    return ", ".join(roles_to_strings(profile.roles))
+
+
 def profile_needs_telemetry(
     profile: HvacDeviceProfile,
     unknown_keys: list[str],
@@ -225,8 +246,6 @@ def profile_needs_telemetry(
     if profile.roles == HvacRole.NONE:
         return False
     if profile.roles & TELEMETRY_SKIP_ROLES and not (profile.roles & ~TELEMETRY_SKIP_ROLES):
-        return False
-    if profile.roles == HvacRole.ACTUATOR and not unknown_keys:
         return False
     if unknown_keys:
         return True
