@@ -118,8 +118,11 @@ EXTRA_KNOWN_ZONE_CONFIG_KEYS = frozenset(
     }
 )
 
-# Present on every install — tracked on roadmap, not actionable telemetry/repair.
-TELEMETRY_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER | HvacRole.ACTUATOR
+# No Settings → Repairs for pure profiles (roadmap, most installs).
+REPAIR_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER | HvacRole.ACTUATOR
+
+# No notification spam for infra roles (system partially exposed; scheduler TBD).
+NOTIFICATION_SKIP_ROLES = HvacRole.SYSTEM | HvacRole.SCHEDULER
 
 UNIMPLEMENTED_ROLES = HvacRole.ACTUATOR | HvacRole.SYSTEM | HvacRole.SCHEDULER
 IMPLEMENTED_ROLES = HvacRole.THERMOSTAT | HvacRole.TERMINAL | HvacRole.PURIFIER
@@ -227,6 +230,8 @@ def profile_should_raise_repair_issue(
     """Repair only when an unimplemented role remains or unknown keys on a non-HA profile."""
     if not profile_needs_telemetry(profile, unknown_keys):
         return False
+    if profile.roles & REPAIR_SKIP_ROLES and not (profile.roles & ~REPAIR_SKIP_ROLES):
+        return False
     if unimplemented_roles_for_telemetry(profile.roles):
         return True
     return bool(unknown_keys and not (profile.roles & IMPLEMENTED_ROLES))
@@ -245,7 +250,9 @@ def profile_needs_telemetry(
 ) -> bool:
     if profile.roles == HvacRole.NONE:
         return False
-    if profile.roles & TELEMETRY_SKIP_ROLES and not (profile.roles & ~TELEMETRY_SKIP_ROLES):
+    if profile.roles & NOTIFICATION_SKIP_ROLES and not (
+        profile.roles & ~NOTIFICATION_SKIP_ROLES
+    ):
         return False
     if unknown_keys:
         return True
