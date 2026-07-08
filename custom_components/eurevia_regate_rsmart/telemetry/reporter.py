@@ -17,9 +17,9 @@ from ..lib.telemetry_profile import (
     is_placeholder_thermostat,
     profile_fingerprint,
     profile_needs_telemetry,
-    profile_supported_by_integration,
+    profile_should_raise_repair_issue,
     profile_to_export_dict,
-    roles_to_strings,
+    repair_role_label_for_profile,
     unknown_keys_for_profile,
 )
 from ..repair import async_clear_unsupported_profile_issues, async_sync_unsupported_profile_issues
@@ -81,10 +81,9 @@ class EureviaTelemetryReporter:
                 continue
 
             needs_telemetry = profile_needs_telemetry(profile, unknown_keys)
-            supported = profile_supported_by_integration(profile, unknown_keys)
 
-            if needs_telemetry and not supported:
-                role_label = ", ".join(roles_to_strings(profile.roles))
+            if profile_should_raise_repair_issue(profile, unknown_keys):
+                role_label = repair_role_label_for_profile(profile)
                 unsupported_repairs.append((fingerprint, role_label))
 
             if fingerprint in reported:

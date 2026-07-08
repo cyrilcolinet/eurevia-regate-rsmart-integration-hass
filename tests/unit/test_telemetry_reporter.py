@@ -1,6 +1,6 @@
 """Tests for telemetry reporter fingerprint persistence."""
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from eurevia_regate_rsmart.lib.capabilities import HvacDiscovery, classify_hvac_payload
@@ -35,6 +35,42 @@ async def test_fingerprint_saved_after_notification():
     reporter._store.async_save = AsyncMock()
     reporter._notify_new_profile = MagicMock()
 
+    payload = {**THERMO_PAYLOAD, "Mystery": 1}
+    profile = classify_hvac_payload("101", payload)
+    discovery = HvacDiscovery(
+        profiles={"101": profile},
+        terminal_primary_id=None,
+        terminal_read_ids=(),
+        purifier_command_id=None,
+        purifier_read_ids=(),
+        system_id=None,
+        thermostat_ids=("101",),
+        actuator_ids=(),
+        scheduler_id=None,
+        terminal_keys=frozenset(),
+        zone_keys=frozenset(),
+    )
+
+    await reporter.async_report(discovery, {"101": payload})
+
+    reporter._notify_new_profile.assert_called_once()
+    reporter._store.async_save.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_actuator_only_notifies_without_repair():
+    hass = MagicMock()
+    hass.config.version = "2025.1.0"
+    entry = MagicMock()
+    entry.entry_id = "test"
+    entry.options = {"telemetry": True}
+
+    reporter = EureviaTelemetryReporter(hass, entry)
+    reporter._store = MagicMock()
+    reporter._store.async_load = AsyncMock(return_value={"fingerprints": []})
+    reporter._store.async_save = AsyncMock()
+    reporter._notify_new_profile = MagicMock()
+
     profile = classify_hvac_payload("50", ACTUATOR_PAYLOAD)
     discovery = HvacDiscovery(
         profiles={"50": profile},
@@ -50,10 +86,14 @@ async def test_fingerprint_saved_after_notification():
         zone_keys=frozenset(),
     )
 
-    await reporter.async_report(discovery, {"50": ACTUATOR_PAYLOAD})
+    with patch(
+        "eurevia_regate_rsmart.telemetry.reporter.async_sync_unsupported_profile_issues"
+    ) as sync_repairs:
+        await reporter.async_report(discovery, {"50": ACTUATOR_PAYLOAD})
 
     reporter._notify_new_profile.assert_called_once()
-    reporter._store.async_save.assert_called_once()
+    sync_repairs.assert_called_once()
+    assert sync_repairs.call_args[0][2] == []
 
 
 @pytest.mark.asyncio
@@ -106,23 +146,24 @@ async def test_duplicate_profile_does_not_notify_twice():
     reporter._store.async_save = AsyncMock()
     reporter._notify_new_profile = MagicMock()
 
-    profile = classify_hvac_payload("50", ACTUATOR_PAYLOAD)
+    payload = {**THERMO_PAYLOAD, "Mystery": 1}
+    profile = classify_hvac_payload("101", payload)
     discovery = HvacDiscovery(
-        profiles={"50": profile},
+        profiles={"101": profile},
         terminal_primary_id=None,
         terminal_read_ids=(),
         purifier_command_id=None,
         purifier_read_ids=(),
         system_id=None,
-        thermostat_ids=(),
-        actuator_ids=("50",),
+        thermostat_ids=("101",),
+        actuator_ids=(),
         scheduler_id=None,
         terminal_keys=frozenset(),
         zone_keys=frozenset(),
     )
 
-    await reporter.async_report(discovery, {"50": ACTUATOR_PAYLOAD})
-    await reporter.async_report(discovery, {"50": ACTUATOR_PAYLOAD})
+    await reporter.async_report(discovery, {"101": payload})
+    await reporter.async_report(discovery, {"101": payload})
 
     reporter._notify_new_profile.assert_called_once()
 
