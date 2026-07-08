@@ -82,9 +82,7 @@ EXTRA_KNOWN_TERMINAL_KEYS = frozenset(
 # Installer / factory test keys — never surfaced in HA or telemetry.
 IGNORED_MQTT_KEY_PREFIXES = ("Test_",)
 
-EXTRA_KNOWN_ACTUATOR_KEYS = frozenset(
-    {"Pos_Min", "Pos_Max", "Pos_Cmd", "Window", "Detection"}
-)
+EXTRA_KNOWN_ACTUATOR_KEYS = frozenset({"Pos_Min", "Pos_Max", "Pos_Cmd", "Window", "Detection"})
 
 EXTRA_KNOWN_SYSTEM_KEYS = frozenset(
     {
@@ -250,9 +248,7 @@ def profile_needs_telemetry(
 ) -> bool:
     if profile.roles == HvacRole.NONE:
         return False
-    if profile.roles & NOTIFICATION_SKIP_ROLES and not (
-        profile.roles & ~NOTIFICATION_SKIP_ROLES
-    ):
+    if profile.roles & NOTIFICATION_SKIP_ROLES and not (profile.roles & ~NOTIFICATION_SKIP_ROLES):
         return False
     if unknown_keys:
         return True
