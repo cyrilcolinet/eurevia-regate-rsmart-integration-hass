@@ -16,6 +16,15 @@
         "data": {
           "telemetry": "Notify me about new or unsupported devices (recommended)"
         }
+      },
+      "reconfigure": {
+        "title": "reGATE connection",
+        "description": "Update the MQTT host (IP), port or prefix of the reGATE. The connection is re-validated before saving; your zones and settings are kept.",
+        "data": {
+          "host": "Host / IP",
+          "port": "Port",
+          "prefix": "MQTT prefix"
+        }
       }
     },
     "error": {
@@ -23,6 +32,9 @@
       "invalid_mqtt": "Connected to the host but MQTT handshake failed.",
       "regate_not_found": "MQTT broker reachable but no reGATE zones payload on the configured prefix.",
       "unknown": "Unexpected error during setup."
+    },
+    "abort": {
+      "reconfigure_successful": "reGATE connection updated."
     }
   },
   "issues": {

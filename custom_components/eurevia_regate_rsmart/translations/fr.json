@@ -16,6 +16,15 @@
         "data": {
           "telemetry": "Me notifier pour les appareils nouveaux ou non supportés (recommandé)"
         }
+      },
+      "reconfigure": {
+        "title": "Connexion reGATE",
+        "description": "Modifiez l'hôte (IP), le port ou le préfixe MQTT de la reGATE. La connexion est revalidée avant enregistrement ; vos zones et réglages sont conservés.",
+        "data": {
+          "host": "Hôte / IP",
+          "port": "Port",
+          "prefix": "Préfixe MQTT"
+        }
       }
     },
     "error": {
@@ -23,6 +32,9 @@
       "invalid_mqtt": "Connexion TCP OK mais échec du handshake MQTT.",
       "regate_not_found": "Broker MQTT joignable mais aucun message zones reGATE sur le préfixe configuré.",
       "unknown": "Erreur inattendue pendant la configuration."
+    },
+    "abort": {
+      "reconfigure_successful": "Connexion reGATE mise à jour."
     }
   },
   "issues": {
