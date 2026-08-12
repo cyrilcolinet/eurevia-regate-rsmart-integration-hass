@@ -1,0 +1,9 @@
+name: CodeQL config
+
+# Broader security query pack than the default suite.
+queries:
+  - uses: security-extended
+
+# Analyze the integration; tests are excluded.
+paths:
+  - custom_components/eurevia_regate_rsmart
