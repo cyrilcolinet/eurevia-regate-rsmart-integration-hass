@@ -1,0 +1,97 @@
+name: Release please
+
+# Opens / updates the "chore: release X.Y.Z" PR (CHANGELOG + manifest.json).
+# Manual merge → tag vX.Y.Z + GitHub Release (release-please) + zip + install note.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        id: release
+
+  publish-release:
+    name: publish-release
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Build HACS zip
+        run: |
+          cd "${{ github.workspace }}/custom_components/eurevia_regate_rsmart"
+          zip -r eurevia_regate_rsmart.zip .
+
+      - name: Upload zip and append install note
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: ${{ github.workspace }}/custom_components/eurevia_regate_rsmart/eurevia_regate_rsmart.zip
+          append_body: true
+          body: |
+            ## Install
+
+            HACS → Eurevia reGATE (rSmart) → Update, then restart Home Assistant.
+
+            After update: **Settings → Devices & services → Eurevia reGATE → Reload**.
+
+  mark-released-issues:
+    name: mark-released-issues
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      # Everything merged to main since the last release ships in this tag, so
+      # swap "pending release" → "released" and note the version. Issues stay
+      # OPEN on purpose — closing them is left to the maintainer.
+      - uses: actions/github-script@v9
+        env:
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        with:
+          script: |
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              ...context.repo,
+              state: 'open',
+              labels: 'pending release',
+              per_page: 100,
+            });
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+              await github.rest.issues.removeLabel({
+                ...context.repo, issue_number: issue.number, name: 'pending release',
+              }).catch(() => {});
+              await github.rest.issues.addLabels({
+                ...context.repo, issue_number: issue.number, labels: ['released'],
+              });
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: issue.number, body: `Released in ${process.env.TAG}. 🎉`,
+              });
+              core.info(`#${issue.number} → released (${process.env.TAG})`);
+            }
