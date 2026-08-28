@@ -163,7 +163,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    store = get_store(hass, entry.entry_id)
+    store = get_store(entry)
     added_terminal = store.added("terminal_sensor")
     added_zone = store.added("zone_sensor")
 

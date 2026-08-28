@@ -146,7 +146,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    store = get_store(hass, entry.entry_id)
+    store = get_store(entry)
     added_zones = store.added("climate_zone")
 
     def build_entities() -> list[ClimateEntity]:

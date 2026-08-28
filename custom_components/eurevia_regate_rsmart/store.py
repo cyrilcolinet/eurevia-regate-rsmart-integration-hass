@@ -6,9 +6,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from homeassistant.core import HomeAssistant
+from homeassistant.config_entries import ConfigEntry
 
-from .const import DOMAIN
 from .domain.capabilities import HvacDiscovery, discover_hvac_devices
 from .mqtt import SimpleMqttClient
 
@@ -51,5 +50,5 @@ def cancel_scheduled_checks(store: RegateStore) -> None:
         store.mqtt_stale_check_unsub = None
 
 
-def get_store(hass: HomeAssistant, entry_id: str) -> RegateStore:
-    return hass.data[DOMAIN][entry_id]
+def get_store(entry: ConfigEntry) -> RegateStore:
+    return entry.runtime_data
