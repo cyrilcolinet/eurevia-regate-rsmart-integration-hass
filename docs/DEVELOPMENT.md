@@ -145,6 +145,6 @@ Runtime state lives in `store.RegateStore` (typed per config entry).
 2. If config-only, add to `EXTRA_KNOWN_*` in `telemetry_profile.py`
 3. Add translation keys in `strings.json` + `translations/`
 4. Extend `tests/fixtures/regate_snapshot.json` if the key appears on a supported device
-5. Add a rule in `tests/unit/test_entity_discovery.py` when entity gating applies
+5. Add a rule in `tests/unit/domain/test_entity_discovery.py` when entity gating applies
 
 See also [CONTRIBUTING.md](../CONTRIBUTING.md) for PR conventions.
