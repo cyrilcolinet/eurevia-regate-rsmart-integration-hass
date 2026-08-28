@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Local MQTT integration for the Eurevia reGATE hub</strong><br>
-  Multi-zone heating, air purifier, terminal diagnostics, window and presence sensors — directly from your reGATE broker.
+  Multi-zone heating, air purifier and terminal diagnostics — directly from your reGATE broker.
 </p>
 
 <p align="center">
@@ -56,12 +56,13 @@ The [Eurevia reGATE](https://www.eurevia.com/rsmart/) hub (rSMART ecosystem) exp
 - **Air purifier** on the hydraulic terminal — auto / mini / moyen / maxi presets (`fan`)
 - **Terminal (Bloc CVC)** — water/air temperature, fan speed, valve command, PID config, … (`sensor`)
 - **Per zone** — humidity, battery, LQI, comms, firmware version, … (`sensor`)
-- **Window open** and **presence** per climatic zone (`binary_sensor`)
 - **MQTT connectivity** diagnostic sensor on Bloc CVC (`sensor`)
+
+> Window-open and presence state is exposed as attributes on each zone's climate entity, not as standalone `binary_sensor` entities.
 
 ### Beta
 
-- **Actuator / scheduler / system** HVAC roles — discovered and logged; no HA entities yet
+- **Actuator** HVAC role — discovered and logged; no HA entities yet
 
 Per-device detail: [docs/SUPPORTED_DEVICES.md](docs/SUPPORTED_DEVICES.md) · History: [docs/ROADMAP.md](docs/ROADMAP.md)
 

@@ -13,12 +13,12 @@ Short version: [README](../README.md) · detailed view below.
 
 | Status | Feature | HA entities |
 |--------|---------|-------------|
-| ✅ Supported | Climatic zones | `climate`, `binary_sensor`, `sensor`, `number` |
+| ✅ Supported | Climatic zones | `climate`, `sensor`, `number` |
 | ✅ Supported | Global thermostat (Bloc CVC) | `climate` |
 | ✅ Supported | Per-zone thermostats | `climate` |
 | ✅ Supported | Air purifier (when `P_Mode` present) | `fan` |
 | ✅ Supported | Terminal diagnostics | `sensor` (dynamic from MQTT keys) |
-| ✅ Supported | Window / presence per zone | `binary_sensor` |
+| ✅ Supported | Window / presence per zone | Attributes on zone `climate` |
 | ✅ Supported | MQTT auto-discovery (pattern-based roles) | — |
 | 🔬 Beta | Actuator HVAC role | None yet |
 | 🔬 Beta | System / scheduler HVAC roles | None yet |
@@ -63,7 +63,7 @@ Entity detail: [SUPPORTED_DEVICES.md](SUPPORTED_DEVICES.md) · Protocol: [MQTT.m
 - Local MQTT client (async, MQTT 3.1.1)
 - Zone list from `{prefix}/zones` + config flow zone picker
 - HVAC device classification by payload keys (terminal, purifier, thermostat, actuator, system, scheduler)
-- Climate, fan, sensor, binary_sensor platforms
+- Climate, fan, sensor, number platforms
 - Unit + E2E tests (frozen JSON MQTT snapshot) + CI
 - CI: Ruff, pytest, Hassfest, HACS
 

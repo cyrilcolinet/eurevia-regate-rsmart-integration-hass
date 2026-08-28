@@ -47,7 +47,7 @@ def async_create_mqtt_disconnected_issue(hass: HomeAssistant, entry: ConfigEntry
         hass,
         DOMAIN,
         issue_id_mqtt_disconnected(entry.entry_id),
-        is_fixable=True,
+        is_fixable=False,
         issue_domain=DOMAIN,
         severity=ir.IssueSeverity.ERROR,
         translation_key="mqtt_disconnected",

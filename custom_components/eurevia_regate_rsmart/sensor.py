@@ -41,6 +41,13 @@ class EureviaRegateConnectivitySensor(EureviaRegateEntity, SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_{entry.entry_id}_connectivity"
 
     @property
+    def available(self) -> bool:
+        # This sensor reports MQTT health, so it must outlive the connection it
+        # tracks — otherwise it goes unavailable exactly when MQTT drops and the
+        # "disconnected" state is never reachable.
+        return True
+
+    @property
     def device_info(self):
         return bloc_cvc_device_info(self._entry)
 

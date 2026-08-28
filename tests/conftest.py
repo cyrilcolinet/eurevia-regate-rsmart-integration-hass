@@ -15,6 +15,7 @@ _HA_STUBS = [
     "homeassistant.const",
     "homeassistant.core",
     "homeassistant.exceptions",
+    "homeassistant.loader",
     "homeassistant.helpers",
     "homeassistant.helpers.device_registry",
     "homeassistant.helpers.dispatcher",
@@ -47,6 +48,9 @@ _config_entries.ConfigFlowResult = dict
 
 _device_registry = sys.modules["homeassistant.helpers.device_registry"]
 _device_registry.DeviceInfo = dict
+
+_loader = sys.modules["homeassistant.loader"]
+_loader.async_get_loaded_integration = lambda hass, domain: MagicMock(version="0.0.0")
 
 _exceptions = sys.modules["homeassistant.exceptions"]
 

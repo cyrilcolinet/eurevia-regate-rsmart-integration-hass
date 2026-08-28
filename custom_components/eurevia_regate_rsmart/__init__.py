@@ -6,7 +6,6 @@ import json
 import logging
 import uuid
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -64,9 +63,13 @@ PLATFORMS: list[Platform] = [
     Platform.NUMBER,
 ]
 
-__version__ = json.loads((Path(__file__).parent / "manifest.json").read_text(encoding="utf-8"))[
-    "version"
-]
+
+def integration_version(hass: HomeAssistant) -> str:
+    """Version from the already-loaded manifest — no blocking file read."""
+    from homeassistant.loader import async_get_loaded_integration
+
+    return str(async_get_loaded_integration(hass, DOMAIN).version)
+
 
 type EureviaRegateConfigEntry = ConfigEntry
 
