@@ -274,8 +274,6 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
                 "Override",
                 "Authorized",
                 "Battery",
-                "Window",
-                "Detection",
                 "Water_Auth",
                 "Operating_Auth",
                 "Com_Th",

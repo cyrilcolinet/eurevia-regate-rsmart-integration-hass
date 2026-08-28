@@ -58,8 +58,6 @@ The [Eurevia reGATE](https://www.eurevia.com/rsmart/) hub (rSMART ecosystem) exp
 - **Per zone** — humidity, battery, LQI, comms, firmware version, … (`sensor`)
 - **MQTT connectivity** diagnostic sensor on Bloc CVC (`sensor`)
 
-> Window-open and presence state is exposed as attributes on each zone's climate entity, not as standalone `binary_sensor` entities.
-
 ### Beta
 
 - **Actuator** HVAC role — discovered and logged; no HA entities yet

@@ -15,7 +15,7 @@ Summary: [ROADMAP.md](ROADMAP.md)
 
 This integration covers the **Eurevia reGATE / rSMART climatic stack**:
 
-- Climatic zones (reSENS thermostats, window / presence)
+- Climatic zones (reSENS thermostats)
 - Hydraulic terminal — **Bloc CVC** (water loop, fan, valve)
 - Integrated **air purifier** on the terminal (when `P_Mode` is present in MQTT)
 
@@ -33,8 +33,6 @@ Zones are listed on `{prefix}/zones`. Each enabled zone gets a device in Home As
 | Setpoint | Active target follows mode: `Stp_Comf`, `Stp_Eco_C/H`, `Stp_Reduc_C/H` |
 | Writable setpoints | `number` per key when present (`Stp_Comf`, min/max, eco, reduced, `Tmp_Offset`) |
 | Limits | Climate slider uses `Stp_Comf_Min` / `Stp_Comf_Max` |
-| Window | Attribute on zone `climate` (`Window` / window-open key) |
-| Presence | Attribute on zone `climate` (occupancy key) |
 | Humidity | `sensor` when `RH` is in the zone HVAC payload |
 | Diagnostics | Battery, LQI, voltage, firmware (`SW_Version`), comms flags — only if keys are present |
 

@@ -18,7 +18,6 @@ Short version: [README](../README.md) · detailed view below.
 | ✅ Supported | Per-zone thermostats | `climate` |
 | ✅ Supported | Air purifier (when `P_Mode` present) | `fan` |
 | ✅ Supported | Terminal diagnostics | `sensor` (dynamic from MQTT keys) |
-| ✅ Supported | Window / presence per zone | Attributes on zone `climate` |
 | ✅ Supported | MQTT auto-discovery (pattern-based roles) | — |
 | 🔬 Beta | Actuator HVAC role | None yet |
 | 🔬 Beta | System / scheduler HVAC roles | None yet |
