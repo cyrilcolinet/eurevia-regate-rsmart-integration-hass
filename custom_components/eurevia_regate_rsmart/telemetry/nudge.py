@@ -110,9 +110,9 @@ class EureviaTelemetryNudge:
         await self._store.async_save(meta)
 
     async def _integration_version(self) -> str:
-        from .. import __version__
+        from .. import integration_version
 
-        return __version__
+        return integration_version(self._hass)
 
 
 def _nudge_copy(hass: HomeAssistant, entry_id: str) -> tuple[str, str]:

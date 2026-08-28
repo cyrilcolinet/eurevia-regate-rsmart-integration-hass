@@ -54,7 +54,7 @@ class EureviaTelemetryReporter:
             return
 
         reported = await self._load_reported()
-        integration_version = _integration_version()
+        integration_version = _integration_version(self._hass)
         ha_version = _ha_version(self._hass)
         new_count = 0
         unsupported_repairs: list[tuple[str, str]] = []
@@ -148,10 +148,10 @@ class EureviaTelemetryReporter:
         await self._store.async_save({"fingerprints": sorted(reported)})
 
 
-def _integration_version() -> str:
-    from .. import __version__
+def _integration_version(hass: HomeAssistant) -> str:
+    from .. import integration_version
 
-    return __version__
+    return integration_version(hass)
 
 
 def _ha_version(hass: HomeAssistant) -> str:

@@ -91,7 +91,7 @@ Home Assistant requires **platform loaders** and `config_flow.py` at the root of
 ```
 custom_components/eurevia_regate_rsmart/
 ├── __init__.py, manifest.json, config_flow.py, entity.py, store.py
-├── climate.py, sensor.py, fan.py, binary_sensor.py, number.py
+├── climate.py, sensor.py, fan.py, number.py
 ├── platform_helpers.py, repair.py, diagnostics.py
 ├── const.py, exceptions.py, strings.json, translations/, brand/
 │
@@ -107,14 +107,13 @@ custom_components/eurevia_regate_rsmart/
     ├── field_registry.py   # dynamic sensor specs
     ├── setpoint_registry.py
     ├── setpoints.py        # mode / active setpoint helpers
-    ├── binary_registry.py  # zone binary sensor specs
     ├── entity_discovery.py # pure entity creation rules
     ├── telemetry_profile.py
     ├── mapping.py          # zone ↔ thermostat ↔ HVAC topology
     └── conversion.py
 ```
 
-Platforms registered in `__init__.py` → `PLATFORMS`: `binary_sensor`, `climate`, `fan`, `number`, `sensor`.
+Platforms registered in `__init__.py` → `PLATFORMS`: `climate`, `fan`, `number`, `sensor`.
 
 Runtime state lives in `store.RegateStore` (typed per config entry).
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -128,7 +129,7 @@ class EureviaRegateSystemNumber(EureviaRegateEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         discovery = self._store.discovery
         if not discovery or not discovery.system_id:
-            raise ValueError("system device unavailable")
+            raise HomeAssistantError("reGATE system device is unavailable")
         await async_publish_hvac_command(
             self._store,
             discovery.system_id,
@@ -203,7 +204,7 @@ class EureviaRegateSchedulerNumber(EureviaRegateEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         discovery = self._store.discovery
         if not discovery or not discovery.scheduler_id:
-            raise ValueError("scheduler device unavailable")
+            raise HomeAssistantError("reGATE scheduler device is unavailable")
         await async_publish_hvac_command(
             self._store,
             discovery.scheduler_id,
@@ -239,8 +240,36 @@ async def async_setup_entry(
 ) -> None:
     store = get_store(hass, entry.entry_id)
     added = store.added("number")
+    last_signature: tuple | None = None
+
+    def _structure_signature() -> tuple:
+        # Which number entities can exist is driven purely by the set of keys
+        # present (per zone, and on the system/scheduler devices) — not by their
+        # values. Rebuild only when that structure changes, so an HVAC value
+        # update every few seconds no longer re-sweeps every spec.
+        discovery = store.discovery
+        zone_keys = tuple(sorted(zone_keys_from_store(store)))
+        zone_sig = tuple(
+            (zk, tuple(sorted((store.zone_state.get(zk) or {}).keys()))) for zk in zone_keys
+        )
+        system_id = discovery.system_id if discovery else None
+        system_keys = (
+            tuple(sorted((store.hvac_raw.get(system_id) or {}).keys())) if system_id else ()
+        )
+        scheduler_id = discovery.scheduler_id if discovery else None
+        scheduler_keys = (
+            tuple(sorted((store.hvac_raw.get(scheduler_id) or {}).keys())) if scheduler_id else ()
+        )
+        zone_field_keys = tuple(sorted(discovery.zone_keys)) if discovery else ()
+        return (zone_sig, zone_field_keys, system_id, system_keys, scheduler_id, scheduler_keys)
 
     def build_entities() -> list[NumberEntity]:
+        nonlocal last_signature
+        signature = _structure_signature()
+        if signature == last_signature:
+            return []
+        last_signature = signature
+
         discovery = store.discovery
         zone_field_keys = discovery.zone_keys if discovery else frozenset()
         entities: list[NumberEntity] = []

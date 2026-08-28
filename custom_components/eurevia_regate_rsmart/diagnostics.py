@@ -56,7 +56,7 @@ def _profile_exports(
 async def async_get_config_entry_diagnostics(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> dict[str, Any]:
-    from . import __version__
+    from . import integration_version
 
     raw_store = hass.data.get(DOMAIN, {}).get(entry.entry_id)
     store: RegateStore | None = raw_store if isinstance(raw_store, RegateStore) else None
@@ -67,7 +67,7 @@ async def async_get_config_entry_diagnostics(
         _profile_exports(
             discovery.profiles,
             hvac_raw,
-            integration_version=__version__,
+            integration_version=integration_version(hass),
             ha_version=ha_version,
         )
         if discovery
