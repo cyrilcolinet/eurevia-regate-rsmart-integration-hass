@@ -328,9 +328,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
 
     async_call_later(hass, ZONES_EMPTY_CHECK_DELAY_S, _check_zones_empty)
 
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await async_handle_telemetry_nudge(hass, entry)
     return True
+
+
+async def _async_update_listener(hass: HomeAssistant, entry: EureviaRegateConfigEntry) -> None:
+    """Reload the entry so options changes (zone selection, telemetry) take effect."""
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry) -> bool:
