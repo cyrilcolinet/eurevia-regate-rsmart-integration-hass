@@ -15,6 +15,10 @@ from .const import (
     SIGNAL_HVAC_DEVICE_STATE_UPDATED,
     SIGNAL_ZONES_UPDATED,
 )
+from .domain.entity_discovery import zone_entity_cache_key, zone_number_specs_for_zone
+from .domain.scheduler_registry import SchedulerNumberSpec, scheduler_number_specs_for_keys
+from .domain.setpoint_registry import SetpointNumberSpec
+from .domain.system_registry import SystemNumberSpec, system_number_specs_for_keys
 from .entity import (
     EureviaRegateEntity,
     EureviaZoneEntity,
@@ -24,11 +28,7 @@ from .entity import (
     zone_device_info,
 )
 from .lib import as_float
-from .lib.entity_discovery import zone_entity_cache_key, zone_number_specs_for_zone
-from .lib.scheduler_registry import SchedulerNumberSpec, scheduler_number_specs_for_keys
-from .lib.setpoint_registry import SetpointNumberSpec
-from .lib.system_registry import SystemNumberSpec, system_number_specs_for_keys
-from .platform_helpers import setup_dynamic_entities, zone_keys_from_store
+from .platforms import setup_dynamic_entities, zone_keys_from_store
 from .store import get_store
 
 

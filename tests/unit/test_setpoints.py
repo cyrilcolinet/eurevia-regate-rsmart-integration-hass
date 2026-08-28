@@ -1,6 +1,6 @@
 """Unit tests for zone setpoint resolution."""
 
-from eurevia_regate_rsmart.lib.setpoints import (
+from eurevia_regate_rsmart.domain.setpoints import (
     MODE_COMFORT,
     MODE_ECO,
     MODE_OFF,

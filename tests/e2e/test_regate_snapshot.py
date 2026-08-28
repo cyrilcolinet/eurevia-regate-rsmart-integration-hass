@@ -3,21 +3,21 @@
 from __future__ import annotations
 
 import pytest
-from eurevia_regate_rsmart.lib.capabilities import HvacRole, discover_hvac_devices
-from eurevia_regate_rsmart.lib.mapping import (
+from eurevia_regate_rsmart.domain.capabilities import HvacRole, discover_hvac_devices
+from eurevia_regate_rsmart.domain.mapping import (
     build_zone_cfg_from_zones_raw,
     compute_zone_mappings,
     is_thermostat_hvac_payload,
 )
-from eurevia_regate_rsmart.lib.setpoint_registry import setpoint_specs_for_keys
-from eurevia_regate_rsmart.lib.setpoints import (
+from eurevia_regate_rsmart.domain.setpoint_registry import setpoint_specs_for_keys
+from eurevia_regate_rsmart.domain.setpoints import (
     MODE_COMFORT,
     MODE_ECO,
     MODE_REDUCED,
     read_active_setpoint,
     write_setpoint_payload,
 )
-from eurevia_regate_rsmart.lib.telemetry_profile import (
+from eurevia_regate_rsmart.domain.telemetry_profile import (
     profile_needs_telemetry,
     unknown_keys_for_profile,
 )

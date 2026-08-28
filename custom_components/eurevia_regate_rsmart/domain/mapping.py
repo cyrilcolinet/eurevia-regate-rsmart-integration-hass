@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .slugify import slugify_snake
+from ..lib.slugify import slugify_snake
 
 PLACEHOLDER_TH_ID = "Th_ID"
 

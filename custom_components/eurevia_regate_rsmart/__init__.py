@@ -34,7 +34,7 @@ from .const import (
     topic_zigbee_devices,
     topic_zones,
 )
-from .lib import (
+from .domain import (
     build_zone_cfg_from_zones_raw,
     compute_zone_mappings,
     discover_hvac_devices,

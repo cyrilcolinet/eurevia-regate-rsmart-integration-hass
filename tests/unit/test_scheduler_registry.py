@@ -1,6 +1,6 @@
 """Tests for scheduler number registry."""
 
-from eurevia_regate_rsmart.lib.scheduler_registry import scheduler_number_specs_for_keys
+from eurevia_regate_rsmart.domain.scheduler_registry import scheduler_number_specs_for_keys
 
 
 def test_scheduler_specs_from_snapshot_keys():

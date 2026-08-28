@@ -12,9 +12,10 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN, SIGNAL_DISCOVERY_UPDATED, SIGNAL_HVAC_DEVICE_STATE_UPDATED
+from .domain import resolve_purifier_state
 from .entity import EureviaRegateEntity, async_publish_hvac_commands, bloc_cvc_device_info
-from .lib import as_int, resolve_purifier_state
-from .platform_helpers import setup_dynamic_entities
+from .lib import as_int
+from .platforms import setup_dynamic_entities
 from .store import get_store
 
 

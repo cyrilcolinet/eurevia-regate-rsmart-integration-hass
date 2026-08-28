@@ -9,8 +9,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import CONF_HOST, CONF_PORT, CONF_PREFIX, CONF_TELEMETRY, DOMAIN
-from .lib.capabilities import HvacDeviceProfile
-from .lib.telemetry_profile import (
+from .domain.capabilities import HvacDeviceProfile
+from .domain.telemetry_profile import (
     build_github_new_issue_url,
     is_placeholder_thermostat,
     profile_fingerprint,

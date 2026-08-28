@@ -1,6 +1,6 @@
 """Tests for zone mapping logic."""
 
-from eurevia_regate_rsmart.lib.mapping import (
+from eurevia_regate_rsmart.domain.mapping import (
     build_zone_cfg_from_zones_raw,
     compute_zone_mappings,
     is_thermostat_hvac_payload,

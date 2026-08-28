@@ -18,15 +18,15 @@ from .const import (
     SIGNAL_MQTT_CONNECTION_CHANGED,
     SIGNAL_ZONES_UPDATED,
 )
-from .entity import EureviaRegateEntity, EureviaZoneEntity, bloc_cvc_device_info, zone_device_info
-from .lib import resolve_terminal_state
-from .lib.entity_discovery import (
+from .domain import resolve_terminal_state
+from .domain.entity_discovery import (
     terminal_sensor_specs_for_discovery,
     zone_entity_cache_key,
     zone_sensor_specs_for_zone,
 )
-from .lib.field_registry import FieldSensorSpec
-from .platform_helpers import setup_dynamic_entities, zone_keys_from_store
+from .domain.field_registry import FieldSensorSpec
+from .entity import EureviaRegateEntity, EureviaZoneEntity, bloc_cvc_device_info, zone_device_info
+from .platforms import setup_dynamic_entities, zone_keys_from_store
 from .store import get_store
 
 

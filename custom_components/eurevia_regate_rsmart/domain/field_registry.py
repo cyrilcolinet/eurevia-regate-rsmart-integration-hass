@@ -10,7 +10,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
 from homeassistant.const import PERCENTAGE, UnitOfElectricPotential, UnitOfTemperature, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .conversion import as_bool, as_float, as_int
+from ..lib.conversion import as_bool, as_float, as_int
 
 
 @dataclass(frozen=True, slots=True)
