@@ -81,6 +81,13 @@ class EureviaZoneEntity(EureviaRegateEntity):
     def _zone_state(self) -> dict[str, Any]:
         return self._store.zone_state.get(self._zone_key, {}) or {}
 
+    @property
+    def available(self) -> bool:
+        # Three-part gating: HA-available AND MQTT connected (from the base
+        # class) AND the zone still exists in the configured set. A zone dropped
+        # from the options selection goes unavailable instead of freezing.
+        return super().available and self._zone_key in self._store.zone_cfg
+
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
 
