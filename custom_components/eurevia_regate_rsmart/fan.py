@@ -45,7 +45,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    store = get_store(hass, entry.entry_id)
+    store = get_store(entry)
 
     def build_entities() -> list[FanEntity]:
         if store.purifier_entity_added or not store.discovery.has_purifier:

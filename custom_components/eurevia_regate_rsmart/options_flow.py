@@ -21,7 +21,7 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
         self._telemetry = bool(config_entry.options.get(CONF_TELEMETRY, False))
 
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
-        store = get_store(self.hass, self._entry.entry_id)
+        store = get_store(self._entry)
         self._zones_raw = store.zones_raw or []
         existing = dict(self._entry.options.get(CONF_ZONES, {}))
 
@@ -74,7 +74,7 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
         return await self.async_step_zones()
 
     async def async_step_zones(self, user_input: dict | None = None) -> ConfigFlowResult:
-        store = get_store(self.hass, self._entry.entry_id)
+        store = get_store(self._entry)
         zones_raw = store.zones_raw or self._zones_raw
         existing = dict(self._entry.options.get(CONF_ZONES, {}))
         selected = [zone for zone in zones_raw if zone.get("id") in self._selected_ids]

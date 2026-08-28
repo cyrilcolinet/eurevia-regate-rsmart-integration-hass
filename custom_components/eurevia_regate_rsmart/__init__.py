@@ -71,7 +71,7 @@ def integration_version(hass: HomeAssistant) -> str:
     return str(async_get_loaded_integration(hass, DOMAIN).version)
 
 
-type EureviaRegateConfigEntry = ConfigEntry
+type EureviaRegateConfigEntry = ConfigEntry[RegateStore]
 
 ZONES_EMPTY_CHECK_DELAY_S = 300
 
@@ -89,7 +89,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
     prefix = entry.data[CONF_PREFIX]
 
     store = RegateStore(prefix=prefix)
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = store
+    entry.runtime_data = store
 
     from .telemetry import EureviaTelemetryReporter, async_handle_telemetry_nudge
 
@@ -344,7 +344,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntr
     if not unload_ok:
         return False
 
-    store: RegateStore | None = hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
+    store: RegateStore | None = getattr(entry, "runtime_data", None)
     if store:
         cancel_scheduled_checks(store)
     async_clear_all_entry_issues(hass, entry.entry_id)
@@ -354,9 +354,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntr
             await store.client.stop()
         except Exception:
             _LOGGER.debug("MQTT client stop failed", exc_info=True)
-
-    if DOMAIN in hass.data and not hass.data[DOMAIN]:
-        hass.data.pop(DOMAIN)
 
     return True
 

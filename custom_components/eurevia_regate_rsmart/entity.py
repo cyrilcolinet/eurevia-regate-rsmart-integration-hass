@@ -29,7 +29,7 @@ class EureviaRegateEntity(Entity):
 
     @property
     def _store(self) -> RegateStore:
-        return get_store(self.hass, self._entry_id)
+        return get_store(self._entry)
 
     @property
     def entry(self) -> ConfigEntry:
