@@ -127,6 +127,10 @@
         }
       }
     },
+    "binary_sensor": {
+      "zone_window": { "name": "Window" },
+      "zone_presence": { "name": "Presence" }
+    },
     "sensor": {
       "terminal_water_temp": { "name": "Water temperature" },
       "terminal_air_temp": { "name": "Air temperature" },

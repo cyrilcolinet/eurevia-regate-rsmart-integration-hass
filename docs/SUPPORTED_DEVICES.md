@@ -25,7 +25,7 @@ This integration covers the **Eurevia reGATE / rSMART climatic stack**:
 
 Zones are listed on `{prefix}/zones`. Each enabled zone gets a device in Home Assistant after configuration.
 
-**HA entities:** `climate`, `number`, `sensor`
+**HA entities:** `climate`, `number`, `binary_sensor`, `sensor`
 
 | Function | Detail |
 |----------|--------|
@@ -33,8 +33,8 @@ Zones are listed on `{prefix}/zones`. Each enabled zone gets a device in Home As
 | Setpoint | Active target follows mode: `Stp_Comf`, `Stp_Eco_C/H`, `Stp_Reduc_C/H` |
 | Writable setpoints | `number` per key when present (`Stp_Comf`, min/max, eco, reduced, `Tmp_Offset`) |
 | Limits | Climate slider uses `Stp_Comf_Min` / `Stp_Comf_Max` |
-| Window | Attribute on zone `climate` (`Window` / window-open key) |
-| Presence | Attribute on zone `climate` (occupancy key) |
+| Window | `binary_sensor` (device class window) from `Window` key |
+| Presence | `binary_sensor` (device class occupancy) from `Detection` key |
 | Humidity | `sensor` when `RH` is in the zone HVAC payload |
 | Diagnostics | Battery, LQI, voltage, firmware (`SW_Version`), comms flags — only if keys are present |
 
