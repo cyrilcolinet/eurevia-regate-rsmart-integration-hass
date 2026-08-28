@@ -358,6 +358,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntr
     return True
 
 
+async def async_migrate_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry) -> bool:
+    """Config-entry migrations.
+
+    The schema is at VERSION 1 with no migrations yet; this handler is the home
+    for future bumps and refuses to load an entry written by a newer version.
+    """
+    if entry.version > 1:
+        _LOGGER.error("Cannot downgrade reGATE config entry from schema version %s", entry.version)
+        return False
+    return True
+
+
 async def async_remove_config_entry_device(
     hass: HomeAssistant,
     config_entry: EureviaRegateConfigEntry,
