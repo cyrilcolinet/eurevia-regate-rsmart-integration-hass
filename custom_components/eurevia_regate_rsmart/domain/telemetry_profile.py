@@ -7,11 +7,12 @@ import json
 from typing import Any
 from urllib.parse import quote
 
-from ..const import TELEMETRY_GITHUB_REPO, TELEMETRY_ISSUE_LABELS
+from ..const import TELEMETRY_GITHUB_REPO
 from .capabilities import HvacDeviceProfile, HvacRole
 from .field_registry import TERMINAL_FIELD_SPECS, ZONE_FIELD_SPECS
 from .mapping import PLACEHOLDER_TH_ID, normalize_th_id
 from .setpoint_registry import SETPOINT_NUMBER_SPECS
+from .telemetry_labels import telemetry_github_labels
 
 PRIVACY_KEYS = frozenset(
     {
@@ -366,7 +367,7 @@ def format_github_issue_body(export_dict: dict[str, Any], fingerprint: str) -> s
 
 def build_github_new_issue_url(export_dict: dict[str, Any], fingerprint: str) -> str:
     title = format_github_issue_title(export_dict)
-    labels = ",".join(TELEMETRY_ISSUE_LABELS)
+    labels = ",".join(telemetry_github_labels(export_dict))
     base = f"https://github.com/{TELEMETRY_GITHUB_REPO}/issues/new"
     body = format_github_issue_body(export_dict, fingerprint)
     url = f"{base}?title={quote(title)}&body={quote(body)}&labels={quote(labels)}"

@@ -29,7 +29,6 @@ MQTT_STALE_THRESHOLD_S = 900
 MQTT_STALE_CHECK_INTERVAL_S = 300
 
 TELEMETRY_GITHUB_REPO = "cyrilcolinet/eurevia-regate-rsmart-integration-hass"
-TELEMETRY_ISSUE_LABELS = ("device-telemetry",)
 
 
 def topic_zones(prefix: str) -> str:
