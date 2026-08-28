@@ -128,8 +128,7 @@
       }
     },
     "binary_sensor": {
-      "zone_window": { "name": "Fenêtre" },
-      "zone_presence": { "name": "Présence" }
+      "zone_window": { "name": "Fenêtre" }
     },
     "sensor": {
       "terminal_water_temp": { "name": "Température eau" },

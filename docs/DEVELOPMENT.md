@@ -101,7 +101,7 @@ custom_components/eurevia_regate_rsmart/
 ├── domain/                # pure reGATE model (no HA imports)
 │   ├── capabilities.py     # HVAC role auto-discovery
 │   ├── field_registry.py   # dynamic sensor specs
-│   ├── binary_registry.py  # zone window / presence binary specs
+│   ├── binary_registry.py  # zone window binary spec
 │   ├── setpoint_registry.py, system_registry.py, scheduler_registry.py
 │   ├── setpoints.py        # mode / active setpoint helpers
 │   ├── hvac_mode.py, system_control.py

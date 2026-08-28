@@ -20,14 +20,6 @@ class ZoneBinarySpec:
     value_fn: Callable[[dict[str, Any]], bool | None]
 
 
-def _presence(state: dict[str, Any]) -> bool | None:
-    # Detection is a string enum ("Presence" / "Absence"); everything else is unknown.
-    value = state.get("Detection")
-    if value is None:
-        return None
-    return str(value).strip().lower() == "presence"
-
-
 ZONE_BINARY_SPECS: tuple[ZoneBinarySpec, ...] = (
     ZoneBinarySpec(
         mqtt_key="Window",
@@ -35,13 +27,6 @@ ZONE_BINARY_SPECS: tuple[ZoneBinarySpec, ...] = (
         translation_key="zone_window",
         device_class=BinarySensorDeviceClass.WINDOW,
         value_fn=lambda state: as_bool(state.get("Window")),
-    ),
-    ZoneBinarySpec(
-        mqtt_key="Detection",
-        suffix="zone_presence",
-        translation_key="zone_presence",
-        device_class=BinarySensorDeviceClass.OCCUPANCY,
-        value_fn=_presence,
     ),
 )
 
