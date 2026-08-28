@@ -11,8 +11,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
 from ..const import CONF_TELEMETRY, DOMAIN, LOGGER
-from ..lib.capabilities import HvacDiscovery
-from ..lib.telemetry_profile import (
+from ..domain.capabilities import HvacDiscovery
+from ..domain.telemetry_profile import (
     build_github_new_issue_url,
     is_placeholder_thermostat,
     profile_fingerprint,

@@ -2,7 +2,7 @@
 
 > **Disclaimer:** Unofficial community project — not affiliated with or endorsed by Eurevia. Maintainers are independent and do not work for Eurevia. [Full disclaimer](DISCLAIMER.md)
 
-Detail by device type and Home Assistant entities created. HVAC device roles are detected from MQTT **payload key patterns** (see [`lib/capabilities.py`](../custom_components/eurevia_regate_rsmart/lib/capabilities.py)), not hardcoded device IDs.
+Detail by device type and Home Assistant entities created. HVAC device roles are detected from MQTT **payload key patterns** (see [`domain/capabilities.py`](../custom_components/eurevia_regate_rsmart/domain/capabilities.py)), not hardcoded device IDs.
 
 | | |
 |---|---|

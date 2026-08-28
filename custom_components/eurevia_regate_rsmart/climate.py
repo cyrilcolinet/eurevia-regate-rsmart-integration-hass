@@ -14,17 +14,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_call_later
 
 from .const import DOMAIN, SIGNAL_ZONE_STATE_UPDATED, SIGNAL_ZONES_UPDATED
-from .entity import (
-    EureviaRegateEntity,
-    EureviaZoneEntity,
-    async_publish_hvac_command,
-    async_publish_hvac_commands,
-    bloc_cvc_device_info,
-    zone_device_info,
-)
-from .lib import as_float, as_int
-from .lib.hvac_mode import aggregate_zone_hvac_action
-from .lib.setpoints import (
+from .domain.hvac_mode import aggregate_zone_hvac_action
+from .domain.setpoints import (
     MODE_COMFORT,
     MODE_ECO,
     MODE_OFF,
@@ -34,8 +25,17 @@ from .lib.setpoints import (
     write_setpoint_payload,
     zone_supports_cooling,
 )
-from .lib.system_control import async_apply_system_cooling
-from .platform_helpers import setup_dynamic_entities, zone_keys_from_store
+from .domain.system_control import async_apply_system_cooling
+from .entity import (
+    EureviaRegateEntity,
+    EureviaZoneEntity,
+    async_publish_hvac_command,
+    async_publish_hvac_commands,
+    bloc_cvc_device_info,
+    zone_device_info,
+)
+from .lib import as_float, as_int
+from .platforms import setup_dynamic_entities, zone_keys_from_store
 from .store import get_store
 
 PRESET_COMFORT = "comfort"

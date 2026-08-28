@@ -1,7 +1,7 @@
 """Unit tests for telemetry profile helpers."""
 
-from eurevia_regate_rsmart.lib.capabilities import HvacRole, classify_hvac_payload
-from eurevia_regate_rsmart.lib.telemetry_profile import (
+from eurevia_regate_rsmart.domain.capabilities import HvacRole, classify_hvac_payload
+from eurevia_regate_rsmart.domain.telemetry_profile import (
     build_github_new_issue_url,
     is_placeholder_thermostat,
     profile_fingerprint,

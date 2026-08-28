@@ -1,6 +1,6 @@
 """Tests for HVAC auto-discovery from payload patterns."""
 
-from eurevia_regate_rsmart.lib.capabilities import (
+from eurevia_regate_rsmart.domain.capabilities import (
     HvacRole,
     classify_hvac_payload,
     discover_hvac_devices,

@@ -1,7 +1,7 @@
 """Tests for zone HVAC action resolution."""
 
-from eurevia_regate_rsmart.lib.hvac_mode import aggregate_zone_hvac_action
-from eurevia_regate_rsmart.lib.setpoints import (
+from eurevia_regate_rsmart.domain.hvac_mode import aggregate_zone_hvac_action
+from eurevia_regate_rsmart.domain.setpoints import (
     MODE_COMFORT,
     MODE_ECO,
     MODE_OFF,

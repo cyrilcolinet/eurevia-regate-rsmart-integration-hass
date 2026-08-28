@@ -25,7 +25,7 @@ Payloads are JSON objects. HVAC state topics use a numeric or string device id a
 
 ## Device role detection
 
-Roles are inferred from keys present in each `{prefix}/hvac/devices/{id}` payload ([`lib/capabilities.py`](../custom_components/eurevia_regate_rsmart/lib/capabilities.py)):
+Roles are inferred from keys present in each `{prefix}/hvac/devices/{id}` payload ([`domain/capabilities.py`](../custom_components/eurevia_regate_rsmart/domain/capabilities.py)):
 
 | Role | Signature keys |
 |------|----------------|
@@ -58,7 +58,7 @@ Air purifier preset (values depend on reGATE firmware):
 {"P_Mode": 2}
 ```
 
-Mode integers and preset mapping: [`lib/mapping.py`](../custom_components/eurevia_regate_rsmart/lib/mapping.py).
+Mode integers and preset mapping: [`domain/mapping.py`](../custom_components/eurevia_regate_rsmart/domain/mapping.py).
 
 ## Live debugging
 

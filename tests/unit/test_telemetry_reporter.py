@@ -3,8 +3,8 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from eurevia_regate_rsmart.lib.capabilities import HvacDiscovery, classify_hvac_payload
-from eurevia_regate_rsmart.lib.telemetry_profile import (
+from eurevia_regate_rsmart.domain.capabilities import HvacDiscovery, classify_hvac_payload
+from eurevia_regate_rsmart.domain.telemetry_profile import (
     profile_fingerprint,
     profile_to_export_dict,
     unknown_keys_for_profile,

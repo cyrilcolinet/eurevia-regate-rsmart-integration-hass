@@ -28,7 +28,7 @@ def hvac_raw(regate_snapshot: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 @pytest.fixture(scope="module")
 def hvac_id_to_th_id(hvac_raw: dict[str, dict[str, Any]]) -> dict[str, str]:
-    from eurevia_regate_rsmart.lib.mapping import is_thermostat_hvac_payload, normalize_th_id
+    from eurevia_regate_rsmart.domain.mapping import is_thermostat_hvac_payload, normalize_th_id
 
     mapping: dict[str, str] = {}
     for device_id, payload in hvac_raw.items():

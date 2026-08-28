@@ -90,27 +90,35 @@ Home Assistant requires **platform loaders** and `config_flow.py` at the root of
 
 ```
 custom_components/eurevia_regate_rsmart/
-├── __init__.py, manifest.json, config_flow.py, entity.py, store.py
+├── __init__.py, manifest.json, config_flow.py, options_flow.py, entity.py, store.py
 ├── climate.py, sensor.py, fan.py, number.py
-├── platform_helpers.py, repair.py, diagnostics.py
+├── repair.py, diagnostics.py
 ├── const.py, exceptions.py, strings.json, translations/, brand/
 │
 ├── mqtt/                   # async MQTT 3.1.1 client (infinite retry by default)
 │   └── client.py
 │
+├── domain/                # pure reGATE model (no HA imports)
+│   ├── capabilities.py     # HVAC role auto-discovery
+│   ├── field_registry.py   # dynamic sensor specs
+│   ├── setpoint_registry.py, system_registry.py, scheduler_registry.py
+│   ├── setpoints.py        # mode / active setpoint helpers
+│   ├── hvac_mode.py, system_control.py
+│   ├── entity_discovery.py # pure entity creation rules
+│   ├── telemetry_profile.py
+│   └── mapping.py          # zone ↔ thermostat ↔ HVAC topology
+│
+├── platforms/             # shared HA platform setup helpers
+│   └── helpers.py
+│
 ├── telemetry/              # opt-in profile notifications
 │   ├── reporter.py
 │   └── nudge.py
 │
-└── lib/                    # pure functions (minimal HA import)
-    ├── capabilities.py     # HVAC role auto-discovery
-    ├── field_registry.py   # dynamic sensor specs
-    ├── setpoint_registry.py
-    ├── setpoints.py        # mode / active setpoint helpers
-    ├── entity_discovery.py # pure entity creation rules
-    ├── telemetry_profile.py
-    ├── mapping.py          # zone ↔ thermostat ↔ HVAC topology
-    └── conversion.py
+└── lib/                    # generic pure utilities
+    ├── conversion.py
+    ├── observability.py
+    └── slugify.py
 ```
 
 Platforms registered in `__init__.py` → `PLATFORMS`: `climate`, `fan`, `number`, `sensor`.
@@ -121,15 +129,15 @@ Runtime state lives in `store.RegateStore` (typed per config entry).
 
 | Package | Role |
 |---------|------|
-| `lib.capabilities` | MQTT payload → HVAC device profile |
-| `lib.field_registry` | Known MQTT keys → sensor metadata |
-| `lib.setpoint_registry` | Writable zone setpoints → number entities |
-| `lib.mapping` | Zone / thermostat / HVAC ID topology |
-| `lib.setpoints` | Active setpoint read/write payloads |
-| `lib.entity_discovery` | Which entities to create per zone |
+| `domain.capabilities` | MQTT payload → HVAC device profile |
+| `domain.field_registry` | Known MQTT keys → sensor metadata |
+| `domain.setpoint_registry` | Writable zone setpoints → number entities |
+| `domain.mapping` | Zone / thermostat / HVAC ID topology |
+| `domain.setpoints` | Active setpoint read/write payloads |
+| `domain.entity_discovery` | Which entities to create per zone |
 | `mqtt.client` | Subscribe / publish to reGATE broker |
 | `entity` | Base entities, MQTT publish helper |
-| `platform_helpers` | Shared dynamic entity setup |
+| `platforms.helpers` | Shared dynamic entity setup |
 
 ### Adding a new MQTT key
 

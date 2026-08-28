@@ -1,6 +1,6 @@
 """Tests for entity discovery rules."""
 
-from eurevia_regate_rsmart.lib.entity_discovery import (
+from eurevia_regate_rsmart.domain.entity_discovery import (
     zone_entity_cache_key,
     zone_number_specs_for_zone,
     zone_sensor_specs_for_zone,

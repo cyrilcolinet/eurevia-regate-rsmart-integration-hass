@@ -1,6 +1,6 @@
 """Tests for system device number specs."""
 
-from eurevia_regate_rsmart.lib.system_registry import (
+from eurevia_regate_rsmart.domain.system_registry import (
     COOLING_PAC_VALUE,
     HEATING_PAC_VALUE,
     system_number_specs_for_keys,

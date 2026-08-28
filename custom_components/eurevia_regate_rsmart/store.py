@@ -9,7 +9,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
-from .lib.capabilities import HvacDiscovery, discover_hvac_devices
+from .domain.capabilities import HvacDiscovery, discover_hvac_devices
 from .mqtt import SimpleMqttClient
 
 

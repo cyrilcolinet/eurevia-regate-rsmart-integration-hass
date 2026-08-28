@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .conversion import as_float, as_int
+from ..lib.conversion import as_float, as_int
 
 MODE_OFF = 0
 MODE_COMFORT = 1
