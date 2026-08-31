@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.4.0...v1.4.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* repair runtime_data regressions from the store refactor ([c673223](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/c67322322583524995372d6b133dd6b9525f4f1d))
+
 ## [1.4.0](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.3.0...v1.4.0) (2026-08-28)
 
 
