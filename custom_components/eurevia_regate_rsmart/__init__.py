@@ -179,7 +179,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
                 "MQTT connection to reGATE lost. Automatic reconnection in progress.\n\n"
                 f"Last error: {reason}"
             )
-        store.client._notify_ha(message)
+        store.client.notify(message)
         _schedule_disconnect_repair()
 
     def recompute_zone_mappings() -> bool:
@@ -326,7 +326,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
             return
         async_create_zones_empty_issue(hass, entry)
 
-    async_call_later(hass, ZONES_EMPTY_CHECK_DELAY_S, _check_zones_empty)
+    entry.async_on_unload(async_call_later(hass, ZONES_EMPTY_CHECK_DELAY_S, _check_zones_empty))
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

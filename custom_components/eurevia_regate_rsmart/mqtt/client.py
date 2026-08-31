@@ -217,7 +217,7 @@ class SimpleMqttClient:
                 if self._restart_max_attempts is not None and attempts > self._restart_max_attempts:
                     msg = f"MQTT connection failed during setup. Last error: {repr(last_exc)}"
                     _LOGGER.error(msg)
-                    self._notify_ha(msg)
+                    self.notify(msg)
                     self._stop.set()
                     await self._close_transport()
                     return
@@ -410,7 +410,7 @@ class SimpleMqttClient:
         except Exception as e:
             raise ConnectionError(f"RX loop crashed: {e}") from e
 
-    def _notify_ha(self, message: str) -> None:
+    def notify(self, message: str) -> None:
         configure_url = "/config/integrations/integration/eurevia_regate_rsmart"
         body = f"{message}\n\n[Open integration settings]({configure_url})"
 

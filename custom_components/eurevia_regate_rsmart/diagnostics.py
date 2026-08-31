@@ -8,7 +8,7 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_HOST, CONF_PORT, CONF_PREFIX, CONF_TELEMETRY, DOMAIN
+from .const import CONF_HOST, CONF_PORT, CONF_PREFIX, CONF_TELEMETRY
 from .domain.capabilities import HvacDeviceProfile
 from .domain.telemetry_profile import (
     build_github_new_issue_url,
@@ -58,8 +58,7 @@ async def async_get_config_entry_diagnostics(
 ) -> dict[str, Any]:
     from . import integration_version
 
-    raw_store = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-    store: RegateStore | None = raw_store if isinstance(raw_store, RegateStore) else None
+    store: RegateStore | None = getattr(entry, "runtime_data", None)
     discovery = store.discovery if store else None
     hvac_raw = store.hvac_raw if store else {}
     ha_version = str(getattr(hass.config, "version", "unknown"))

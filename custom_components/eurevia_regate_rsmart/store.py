@@ -50,5 +50,5 @@ def cancel_scheduled_checks(store: RegateStore) -> None:
         store.mqtt_stale_check_unsub = None
 
 
-def get_store(entry: ConfigEntry) -> RegateStore:
-    return entry.runtime_data
+def get_store(entry: ConfigEntry) -> RegateStore | None:
+    return getattr(entry, "runtime_data", None)
