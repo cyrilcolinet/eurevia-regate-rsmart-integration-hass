@@ -77,6 +77,9 @@
         "title": "Zone configuration",
         "description": "Name, key and suggested area for each zone."
       }
+    },
+    "abort": {
+      "not_loaded": "reGATE is not loaded yet. Fix the connection, then configure the zones."
     }
   },
   "entity": {
