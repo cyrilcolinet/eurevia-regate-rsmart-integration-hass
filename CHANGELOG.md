@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.4.1...v1.4.2) (2026-10-19)
+
+
+### Bug Fixes
+
+* **exceptions:** translate MqttNotConnected message ([76d1e01](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/76d1e01e5dba21c8cd19986eea898dfb32d68946))
+
 ## [1.4.1](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.4.0...v1.4.1) (2026-08-31)
 
 
