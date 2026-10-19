@@ -56,7 +56,10 @@ _exceptions = sys.modules["homeassistant.exceptions"]
 
 
 class HomeAssistantError(Exception):
-    pass
+    def __init__(self, *args, translation_domain=None, translation_key=None, **kwargs):
+        super().__init__(*args)
+        self.translation_domain = translation_domain
+        self.translation_key = translation_key
 
 
 _exceptions.HomeAssistantError = HomeAssistantError
