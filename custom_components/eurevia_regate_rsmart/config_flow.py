@@ -14,10 +14,12 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_HOST,
+    CONF_PASSWORD,
     CONF_PORT,
     CONF_PREFIX,
     CONF_TELEMETRY,
     CONF_TELEMETRY_ONBOARDING,
+    CONF_USERNAME,
     DEFAULT_PORT,
     DEFAULT_PREFIX,
     DOMAIN,
@@ -30,15 +32,36 @@ from .mqtt import MqttConnInfo, SimpleMqttClient
 _LOGGER = logging.getLogger(LOGGER)
 
 
-def _connection_schema(host: str | None, port: int, prefix: str) -> vol.Schema:
+def _connection_schema(
+    host: str | None,
+    port: int,
+    prefix: str,
+    username: str | None = None,
+    password: str | None = None,
+) -> vol.Schema:
     host_field = vol.Required(CONF_HOST) if host is None else vol.Required(CONF_HOST, default=host)
     return vol.Schema(
         {
             host_field: str,
             vol.Optional(CONF_PORT, default=port): int,
             vol.Optional(CONF_PREFIX, default=prefix): str,
+            vol.Optional(
+                CONF_USERNAME, description={"suggested_value": username}
+            ): selector.TextSelector(),
+            vol.Optional(
+                CONF_PASSWORD, description={"suggested_value": password}
+            ): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
+            ),
         }
     )
+
+
+def _creds(user_input: dict) -> tuple[str | None, str | None]:
+    """Normalize optional credentials; empty fields become None (anonymous)."""
+    username = (user_input.get(CONF_USERNAME) or "").strip() or None
+    password = user_input.get(CONF_PASSWORD) or None
+    return username, password
 
 
 class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -56,15 +79,16 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         host = user_input[CONF_HOST].strip()
         port = int(user_input[CONF_PORT])
         prefix = (user_input.get(CONF_PREFIX) or DEFAULT_PREFIX).strip("/") or DEFAULT_PREFIX
+        username, password = _creds(user_input)
 
         await self.async_set_unique_id(f"{DOMAIN}_{host}_{port}_{prefix}")
         self._abort_if_unique_id_configured()
 
-        errors = await self._validate_connection(host, port, prefix)
+        errors = await self._validate_connection(host, port, prefix, username, password)
         if errors:
             return self.async_show_form(
                 step_id="user",
-                data_schema=_connection_schema(host, port, prefix),
+                data_schema=_connection_schema(host, port, prefix, username, password),
                 errors=errors,
             )
 
@@ -72,6 +96,8 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_HOST: host,
             CONF_PORT: port,
             CONF_PREFIX: prefix,
+            CONF_USERNAME: username,
+            CONF_PASSWORD: password,
         }
         return await self.async_step_telemetry()
 
@@ -85,18 +111,21 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     entry.data.get(CONF_HOST),
                     int(entry.data.get(CONF_PORT, DEFAULT_PORT)),
                     entry.data.get(CONF_PREFIX, DEFAULT_PREFIX),
+                    entry.data.get(CONF_USERNAME),
+                    entry.data.get(CONF_PASSWORD),
                 ),
             )
 
         host = user_input[CONF_HOST].strip()
         port = int(user_input[CONF_PORT])
         prefix = (user_input.get(CONF_PREFIX) or DEFAULT_PREFIX).strip("/") or DEFAULT_PREFIX
+        username, password = _creds(user_input)
 
-        errors = await self._validate_connection(host, port, prefix)
+        errors = await self._validate_connection(host, port, prefix, username, password)
         if errors:
             return self.async_show_form(
                 step_id="reconfigure",
-                data_schema=_connection_schema(host, port, prefix),
+                data_schema=_connection_schema(host, port, prefix, username, password),
                 errors=errors,
             )
 
@@ -107,12 +136,21 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_HOST: host,
                 CONF_PORT: port,
                 CONF_PREFIX: prefix,
+                CONF_USERNAME: username,
+                CONF_PASSWORD: password,
             },
         )
 
-    async def _validate_connection(self, host: str, port: int, prefix: str) -> dict[str, str]:
+    async def _validate_connection(
+        self,
+        host: str,
+        port: int,
+        prefix: str,
+        username: str | None = None,
+        password: str | None = None,
+    ) -> dict[str, str]:
         try:
-            await self._validate_broker(host, port, prefix)
+            await self._validate_broker(host, port, prefix, username, password)
         except CannotConnect:
             return {"base": "cannot_connect"}
         except MqttProtocolError:
@@ -150,7 +188,14 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
         )
 
-    async def _validate_broker(self, host: str, port: int, prefix: str) -> None:
+    async def _validate_broker(
+        self,
+        host: str,
+        port: int,
+        prefix: str,
+        username: str | None = None,
+        password: str | None = None,
+    ) -> None:
         try:
             _reader, writer = await asyncio.wait_for(asyncio.open_connection(host, port), timeout=5)
         except OSError as exc:
@@ -180,6 +225,8 @@ class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             port=port,
             client_id=f"ha-regate-probe-{uuid.uuid4().hex[:8]}",
             keepalive=10,
+            username=username,
+            password=password,
         )
         probe_client = SimpleMqttClient(
             self.hass,

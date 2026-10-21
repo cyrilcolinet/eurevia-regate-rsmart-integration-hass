@@ -3,11 +3,13 @@
     "step": {
       "user": {
         "title": "Connexion reGATE",
-        "description": "Entrez l'hôte (IP) et le port MQTT de la reGATE.\n\nComment trouver l'adresse IP :\n\n• Depuis un terminal sur le réseau local :\n  `arp -a` puis cherchez un hôte contenant « gatexway ».\n\n• Depuis l'app reGATE :\n  Paramètres → Informations reGATE → hôte/IP.\n\n• Vous pouvez aussi identifier l'appareil par son adresse MAC dans votre box/routeur.",
+        "description": "Entrez l'hôte (IP) et le port MQTT de la reGATE.\n\nComment trouver l'adresse IP :\n\n• Depuis un terminal sur le réseau local :\n  `arp -a` puis cherchez un hôte contenant « gatexway ».\n\n• Depuis l'app reGATE :\n  Paramètres → Informations reGATE → hôte/IP.\n\n• Vous pouvez aussi identifier l'appareil par son adresse MAC dans votre box/routeur.\n\nLaissez le nom d'utilisateur et le mot de passe vides sauf si votre broker MQTT exige une authentification.",
         "data": {
           "host": "Hôte / IP",
           "port": "Port",
-          "prefix": "Préfixe MQTT"
+          "prefix": "Préfixe MQTT",
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe"
         }
       },
       "telemetry": {
@@ -19,11 +21,13 @@
       },
       "reconfigure": {
         "title": "Connexion reGATE",
-        "description": "Modifiez l'hôte (IP), le port ou le préfixe MQTT de la reGATE. La connexion est revalidée avant enregistrement ; vos zones et réglages sont conservés.",
+        "description": "Modifiez l'hôte (IP), le port ou le préfixe MQTT de la reGATE. La connexion est revalidée avant enregistrement ; vos zones et réglages sont conservés.\n\nLaissez le nom d'utilisateur et le mot de passe vides sauf si votre broker MQTT exige une authentification.",
         "data": {
           "host": "Hôte / IP",
           "port": "Port",
-          "prefix": "Préfixe MQTT"
+          "prefix": "Préfixe MQTT",
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe"
         }
       }
     },
