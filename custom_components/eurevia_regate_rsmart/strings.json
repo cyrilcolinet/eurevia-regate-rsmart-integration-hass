@@ -3,11 +3,13 @@
     "step": {
       "user": {
         "title": "reGATE connection",
-        "description": "Enter the MQTT host (IP) and port of the reGATE.\n\nHow to find the IP address:\n\n• From a terminal on your local network:\n  `arp -a` then look for a host containing \"gatexway\".\n\n• From the reGATE app:\n  Settings → reGATE information → find the host/IP.\n\n• You can also identify the device by its MAC address in your router/DHCP list.",
+        "description": "Enter the MQTT host (IP) and port of the reGATE.\n\nHow to find the IP address:\n\n• From a terminal on your local network:\n  `arp -a` then look for a host containing \"gatexway\".\n\n• From the reGATE app:\n  Settings → reGATE information → find the host/IP.\n\n• You can also identify the device by its MAC address in your router/DHCP list.\n\nLeave the username and password empty unless your MQTT broker requires authentication.",
         "data": {
           "host": "Host / IP",
           "port": "Port",
-          "prefix": "MQTT prefix"
+          "prefix": "MQTT prefix",
+          "username": "Username",
+          "password": "Password"
         }
       },
       "telemetry": {
@@ -19,11 +21,13 @@
       },
       "reconfigure": {
         "title": "reGATE connection",
-        "description": "Update the MQTT host (IP), port or prefix of the reGATE. The connection is re-validated before saving; your zones and settings are kept.",
+        "description": "Update the MQTT host (IP), port or prefix of the reGATE. The connection is re-validated before saving; your zones and settings are kept.\n\nLeave the username and password empty unless your MQTT broker requires authentication.",
         "data": {
           "host": "Host / IP",
           "port": "Port",
-          "prefix": "MQTT prefix"
+          "prefix": "MQTT prefix",
+          "username": "Username",
+          "password": "Password"
         }
       }
     },

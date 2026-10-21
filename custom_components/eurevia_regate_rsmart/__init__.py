@@ -17,8 +17,10 @@ from homeassistant.helpers.event import async_call_later
 
 from .const import (
     CONF_HOST,
+    CONF_PASSWORD,
     CONF_PORT,
     CONF_PREFIX,
+    CONF_USERNAME,
     CONF_ZONES,
     DOMAIN,
     LOGGER,
@@ -321,6 +323,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
         port=port,
         client_id=f"ha-regate-{uuid.uuid4().hex[:10]}",
         keepalive=30,
+        username=entry.data.get(CONF_USERNAME),
+        password=entry.data.get(CONF_PASSWORD),
     )
     client = SimpleMqttClient(
         hass,
