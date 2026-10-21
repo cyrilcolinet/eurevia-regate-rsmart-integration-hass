@@ -6,8 +6,12 @@
   ],
   "config_flow": true,
   "dhcp": [
-    { "hostname": "regate*" },
-    { "hostname": "gatexway*" }
+    {
+      "hostname": "regate*"
+    },
+    {
+      "hostname": "gatexway*"
+    }
   ],
   "documentation": "https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass",
   "integration_type": "hub",
@@ -18,5 +22,5 @@
   ],
   "requirements": [],
   "single_config_entry": true,
-  "version": "1.4.2"
+  "version": "1.5.0"
 }

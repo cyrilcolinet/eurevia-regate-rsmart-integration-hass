@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.0](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.4.2...v1.5.0) (2026-10-21)
+
+
+### Features
+
+* **discovery:** auto-detect reGATE hub via DHCP hostname ([f53b6ba](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/f53b6baf8fd2b289b45a5782fc9f9ed26fe96918))
+* **mqtt:** support optional broker username/password ([51742ae](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/51742ae72dd1388d0a57b7b8204a72a70c483896))
+* show hub firmware and serial on device page ([b4158cc](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/b4158cc6ad3e3be1c6acca4019693d2274d09d39))
+
+
+### Bug Fixes
+
+* **climate:** derive heat/cool from system PAC, not room temperature ([3e673b9](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/3e673b9ef00dea3a05fb952db7b84efa284b928e))
+
 ## [1.4.2](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.4.1...v1.4.2) (2026-10-19)
 
 
