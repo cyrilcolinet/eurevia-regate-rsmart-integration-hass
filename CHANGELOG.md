@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.5.0...v1.5.1) (2026-10-21)
+
+
+### Features
+
+* **diagnostics:** expose cooling capability and heat/cool state ([22cfa8d](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/22cfa8db1eb2683bf5bbbef950701b480094674e))
+
 ## [1.5.0](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.4.2...v1.5.0) (2026-10-21)
 
 
