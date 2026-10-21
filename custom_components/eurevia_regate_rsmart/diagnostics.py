@@ -84,6 +84,12 @@ async def async_get_config_entry_diagnostics(
         },
         "mqtt_connected": store.mqtt_connected if store else None,
         "last_mqtt_message_at": last_message,
+        "cooling": {
+            "pac_handler": store.pac_handler if store else None,
+            "cooling_option": store.cooling_option if store else None,
+            "cooling_supported": store.cooling_supported if store else None,
+            "cooling_active": store.cooling_active if store else None,
+        },
         "zones_configured": len(store.zone_cfg) if store else 0,
         "zones_raw_count": len(store.zones_raw) if store else 0,
         "hvac_devices_count": len(hvac_raw),
