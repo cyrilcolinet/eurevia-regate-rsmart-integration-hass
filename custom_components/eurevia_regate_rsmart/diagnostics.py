@@ -107,4 +107,5 @@ async def async_get_config_entry_diagnostics(
         )
         if store and store.zone_state
         else {},
+        "hvac_devices_raw": async_redact_data(hvac_raw, REDACT) if hvac_raw else {},
     }
