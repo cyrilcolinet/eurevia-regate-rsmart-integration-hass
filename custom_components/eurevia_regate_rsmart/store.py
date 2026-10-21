@@ -9,6 +9,8 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 
 from .domain.capabilities import HvacDiscovery, discover_hvac_devices
+from .domain.system_registry import COOLING_PAC_VALUE
+from .lib.conversion import as_int
 from .mqtt import SimpleMqttClient
 
 
@@ -27,6 +29,8 @@ class RegateStore:
     zone_state: dict[str, dict[str, Any]] = field(default_factory=dict)
     zone_key_to_hvac_id: dict[str, str] = field(default_factory=dict)
     discovery: HvacDiscovery = field(default_factory=lambda: discover_hvac_devices({}))
+    pac_handler: bool = False
+    cooling_option: bool = False
     telemetry: Any = None
     hub_sw_version: str | None = None
     hub_serial: str | None = None
@@ -42,6 +46,20 @@ class RegateStore:
 
     def added(self, platform_key: str) -> set[str]:
         return self.added_entities.setdefault(platform_key, set())
+
+    @property
+    def cooling_supported(self) -> bool:
+        """Whether this installation can cool (reversible PAC or manual override)."""
+        return self.pac_handler or self.cooling_option
+
+    @property
+    def cooling_active(self) -> bool:
+        """Current heat/cool axis, read back from the system device PAC value."""
+        system_id = self.discovery.system_id
+        if not system_id:
+            return False
+        payload = self.hvac_raw.get(system_id) or {}
+        return as_int(payload.get("PAC")) == COOLING_PAC_VALUE
 
 
 def cancel_scheduled_checks(store: RegateStore) -> None:

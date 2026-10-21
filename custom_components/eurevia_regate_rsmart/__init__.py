@@ -16,6 +16,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
 
 from .const import (
+    CONF_COOLING,
     CONF_HOST,
     CONF_PASSWORD,
     CONF_PORT,
@@ -94,6 +95,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
     prefix = entry.data[CONF_PREFIX]
 
     store = RegateStore(prefix=prefix)
+    store.cooling_option = bool(entry.options.get(CONF_COOLING, False))
     entry.runtime_data = store
 
     from .telemetry import EureviaTelemetryReporter, async_handle_telemetry_nudge
@@ -254,6 +256,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
                 return
             store.hub_sw_version, store.hub_serial, store.hub_model_id = parse_hub_info(data)
             _refresh_hub_identity()
+            pac_handler = isinstance(data, dict) and data.get("pacHandler") is True
+            if pac_handler != store.pac_handler:
+                store.pac_handler = pac_handler
+                for zone_key in store.zone_cfg:
+                    async_dispatcher_send(
+                        hass, f"{SIGNAL_ZONE_STATE_UPDATED}_{entry.entry_id}", zone_key
+                    )
             return
 
         if topic == topic_zones(prefix):

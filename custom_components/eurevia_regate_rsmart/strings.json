@@ -74,6 +74,7 @@
         "description": "Select climatic zones to expose in Home Assistant.",
         "data": {
           "selected_zone_ids": "Zones",
+          "cooling": "My installation can cool (reversible heat pump or chilled/geothermal water) — enables the cooling modes",
           "telemetry": "Notify me about new or unsupported devices (anonymized; pre-filled GitHub link only — nothing sent without your click)"
         }
       },

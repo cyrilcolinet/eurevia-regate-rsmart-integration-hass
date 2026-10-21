@@ -74,6 +74,7 @@
         "description": "Sélectionnez les zones climatiques à exposer dans Home Assistant.",
         "data": {
           "selected_zone_ids": "Zones",
+          "cooling": "Mon installation peut rafraîchir (PAC réversible ou eau froide/géothermie) — active les modes froid",
           "telemetry": "Me notifier pour les appareils nouveaux ou non supportés (anonymisé ; lien GitHub pré-rempli uniquement — rien n'est envoyé sans votre clic)"
         }
       },

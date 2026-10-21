@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import selector
 
-from .const import CONF_TELEMETRY, CONF_ZONES
+from .const import CONF_COOLING, CONF_TELEMETRY, CONF_ZONES
 from .lib import slugify_snake
 from .store import get_store
 
@@ -19,6 +19,7 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
         self._zones_raw: list[dict] = []
         self._selected_ids: list[int] = []
         self._telemetry = bool(config_entry.options.get(CONF_TELEMETRY, False))
+        self._cooling = bool(config_entry.options.get(CONF_COOLING, False))
 
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
         store = get_store(self._entry)
@@ -64,6 +65,10 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
                             )
                         ),
                         vol.Required(
+                            CONF_COOLING,
+                            default=bool(self._entry.options.get(CONF_COOLING, False)),
+                        ): selector.BooleanSelector(),
+                        vol.Required(
                             CONF_TELEMETRY,
                             default=bool(self._entry.options.get(CONF_TELEMETRY, False)),
                         ): selector.BooleanSelector(),
@@ -73,6 +78,7 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
 
         self._selected_ids = [int(item) for item in (user_input.get("selected_zone_ids") or [])]
         self._telemetry = bool(user_input.get(CONF_TELEMETRY, False))
+        self._cooling = bool(user_input.get(CONF_COOLING, False))
         return await self.async_step_zones()
 
     async def async_step_zones(self, user_input: dict | None = None) -> ConfigFlowResult:
@@ -145,5 +151,6 @@ class EureviaRegateOptionsFlowHandler(config_entries.OptionsFlow):
             data={
                 CONF_ZONES: new_zones,
                 CONF_TELEMETRY: self._telemetry,
+                CONF_COOLING: self._cooling,
             },
         )
