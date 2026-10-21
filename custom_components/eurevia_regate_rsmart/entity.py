@@ -146,13 +146,26 @@ async def async_publish_hvac_commands(
 
 
 def bloc_cvc_device_info(entry: ConfigEntry) -> DeviceInfo:
-    """Device registry entry for the hydraulic terminal + global climate."""
-    return DeviceInfo(
+    """Device registry entry for the hydraulic terminal + global climate.
+
+    This is the reGATE hub's device page; firmware/serial (parsed from the
+    retained `{prefix}/info` payload) are surfaced here when known.
+    """
+    info = DeviceInfo(
         identifiers={(DOMAIN, f"bloc_cvc_{entry.entry_id}")},
         name="Bloc CVC",
         manufacturer="Eurevia",
         model="reGATE rSMART",
     )
+    store = get_store(entry)
+    if store:
+        if store.hub_sw_version:
+            info["sw_version"] = store.hub_sw_version
+        if store.hub_serial:
+            info["serial_number"] = store.hub_serial
+        if store.hub_model_id:
+            info["model_id"] = store.hub_model_id
+    return info
 
 
 def zone_device_info(zone_key: str, zone_cfg: dict) -> DeviceInfo:
