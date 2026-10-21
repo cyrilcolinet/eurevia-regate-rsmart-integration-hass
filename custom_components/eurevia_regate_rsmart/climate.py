@@ -23,7 +23,6 @@ from .domain.setpoints import (
     read_active_setpoint,
     resolve_zone_hvac_action,
     write_setpoint_payload,
-    zone_supports_cooling,
 )
 from .domain.system_control import async_apply_system_cooling
 from .entity import (
@@ -61,25 +60,15 @@ HVAC_ACTION_TO_MODE = {
 }
 
 
-def _zone_hvac_modes(state: dict, discovery) -> list[HVACMode]:
+def _zone_hvac_modes(supports_cooling: bool) -> list[HVACMode]:
     modes = [HVACMode.OFF, HVACMode.HEAT]
-    zone_keys = discovery.zone_keys if discovery else frozenset()
-    if zone_supports_cooling(state, zone_keys) or (discovery and discovery.system_id):
+    if supports_cooling:
         modes.append(HVACMode.COOL)
     return modes
 
 
-def _global_hvac_modes(store) -> list[HVACMode]:
-    discovery = store.discovery
+def _global_hvac_modes(supports_cooling: bool) -> list[HVACMode]:
     modes = [HVACMode.OFF, HVACMode.HEAT]
-    zone_keys = discovery.zone_keys if discovery else frozenset()
-    supports_cooling = bool(discovery and discovery.system_id)
-    if not supports_cooling:
-        for zone_key in store.zone_cfg:
-            state = store.zone_state.get(zone_key) or {}
-            if zone_supports_cooling(state, zone_keys):
-                supports_cooling = True
-                break
     if supports_cooling:
         modes.extend([HVACMode.COOL, HVACMode.HEAT_COOL])
     return modes
@@ -198,7 +187,7 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
 
     @property
     def target_temperature(self) -> float | None:
-        return read_active_setpoint(self._zone_state)
+        return read_active_setpoint(self._zone_state, cooling_active=self._store.cooling_active)
 
     @property
     def min_temp(self) -> float:
@@ -212,11 +201,13 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
 
     @property
     def hvac_modes(self) -> list[HVACMode]:
-        return _zone_hvac_modes(self._zone_state, self._store.discovery)
+        return _zone_hvac_modes(self._store.cooling_supported)
 
     @property
     def hvac_mode(self) -> HVACMode:
-        return HVAC_ACTION_TO_MODE[resolve_zone_hvac_action(self._zone_state)]
+        return HVAC_ACTION_TO_MODE[
+            resolve_zone_hvac_action(self._zone_state, cooling_active=self._store.cooling_active)
+        ]
 
     @property
     def preset_mode(self) -> str | None:
@@ -259,7 +250,11 @@ class EureviaRegateZoneClimate(EureviaZoneEntity, ClimateEntity):
             temp_value = float(temp)
         except (TypeError, ValueError):
             return
-        await self._publish(write_setpoint_payload(self._zone_state, temp_value))
+        await self._publish(
+            write_setpoint_payload(
+                self._zone_state, temp_value, cooling_active=self._store.cooling_active
+            )
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -317,11 +312,15 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
 
     @property
     def hvac_modes(self) -> list[HVACMode]:
-        return _global_hvac_modes(self._store)
+        return _global_hvac_modes(self._store.cooling_supported)
 
     @property
     def hvac_mode(self) -> HVACMode:
-        return HVAC_ACTION_TO_MODE[aggregate_zone_hvac_action(self._zone_states())]
+        return HVAC_ACTION_TO_MODE[
+            aggregate_zone_hvac_action(
+                self._zone_states(), cooling_active=self._store.cooling_active
+            )
+        ]
 
     @property
     def preset_mode(self) -> str | None:
@@ -333,7 +332,10 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
 
     @property
     def target_temperature(self) -> float | None:
-        temps = [read_active_setpoint(state) for state in self._zone_states()]
+        cooling = self._store.cooling_active
+        temps = [
+            read_active_setpoint(state, cooling_active=cooling) for state in self._zone_states()
+        ]
         equal, common = _all_equal_ignore_none(temps)
         return common if equal else None
 
@@ -404,7 +406,9 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
             await async_publish_hvac_command(
                 self._store,
                 str(hvac_id),
-                write_setpoint_payload(state, temp_value),
+                write_setpoint_payload(
+                    state, temp_value, cooling_active=self._store.cooling_active
+                ),
             )
 
     async def async_set_fan_mode(self, fan_mode: str) -> None:
@@ -415,8 +419,11 @@ class EureviaRegateGlobalClimate(EureviaRegateEntity, ClimateEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
+        cooling = self._store.cooling_active
         modes = [as_int(state.get("Mode")) for state in self._zone_states()]
-        temps = [read_active_setpoint(state) for state in self._zone_states()]
+        temps = [
+            read_active_setpoint(state, cooling_active=cooling) for state in self._zone_states()
+        ]
         boosts_raw = [state.get("Boost") for state in self._zone_states() if "Boost" in state]
         return {
             "mixed_modes": not _all_equal_ignore_none(modes)[0],

@@ -14,6 +14,7 @@ CONF_PREFIX = "prefix"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 CONF_ZONES = "zones"
+CONF_COOLING = "cooling"
 CONF_TELEMETRY = "telemetry"
 CONF_TELEMETRY_ONBOARDING = "telemetry_onboarding_shown"
 
@@ -39,6 +40,10 @@ def topic_zones(prefix: str) -> str:
     return f"{prefix}/zones"
 
 
+def topic_info(prefix: str) -> str:
+    return f"{prefix}/info"
+
+
 def topic_zigbee_devices(prefix: str) -> str:
     return f"{prefix}/zigbee/devices"
 
@@ -57,10 +62,6 @@ def parse_hvac_device_id(topic: str, prefix: str) -> str | None:
     if not topic.startswith(base) or topic.endswith("/set"):
         return None
     return topic[len(base) :]
-
-
-def topic_info(prefix: str) -> str:
-    return f"{prefix}/info"
 
 
 def parse_hub_info(payload: Any) -> tuple[str | None, str | None, str | None]:
