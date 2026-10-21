@@ -11,6 +11,8 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import selector
+from homeassistant.helpers.device_registry import format_mac
+from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
 from .const import (
     CONF_HOST,
@@ -44,13 +46,22 @@ def _connection_schema(host: str | None, port: int, prefix: str) -> vol.Schema:
 class EureviaRegateConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
+    _discovered_host: str | None = None
+
+    async def async_step_dhcp(self, discovery_info: DhcpServiceInfo) -> ConfigFlowResult:
+        """Handle a reGATE discovered on the network via DHCP (hostname match)."""
+        await self.async_set_unique_id(format_mac(discovery_info.macaddress))
+        self._abort_if_unique_id_configured()
+        self._discovered_host = discovery_info.ip
+        return await self.async_step_user()
+
     async def async_step_user(self, user_input: dict | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
 
         if user_input is None:
             return self.async_show_form(
                 step_id="user",
-                data_schema=_connection_schema(None, DEFAULT_PORT, DEFAULT_PREFIX),
+                data_schema=_connection_schema(self._discovered_host, DEFAULT_PORT, DEFAULT_PREFIX),
             )
 
         host = user_input[CONF_HOST].strip()
