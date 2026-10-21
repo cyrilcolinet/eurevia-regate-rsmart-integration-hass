@@ -28,6 +28,9 @@ class RegateStore:
     zone_key_to_hvac_id: dict[str, str] = field(default_factory=dict)
     discovery: HvacDiscovery = field(default_factory=lambda: discover_hvac_devices({}))
     telemetry: Any = None
+    hub_sw_version: str | None = None
+    hub_serial: str | None = None
+    hub_model_id: str | None = None
     mqtt_connected: bool = False
     mqtt_disconnect_notified: bool = False
     last_mqtt_message_at: datetime | None = None

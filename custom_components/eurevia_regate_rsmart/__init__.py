@@ -11,6 +11,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
 
@@ -29,8 +30,10 @@ from .const import (
     SIGNAL_MQTT_CONNECTION_CHANGED,
     SIGNAL_ZONE_STATE_UPDATED,
     SIGNAL_ZONES_UPDATED,
+    parse_hub_info,
     parse_hvac_device_id,
     topic_hvac_devices,
+    topic_info,
     topic_zigbee_devices,
     topic_zones,
 )
@@ -215,6 +218,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
         if mappings_changed:
             async_dispatcher_send(hass, f"{SIGNAL_ZONES_UPDATED}_{entry.entry_id}")
 
+    @callback
+    def _refresh_hub_identity() -> None:
+        # device_info is read once when the entity is added, so a retained
+        # `{prefix}/info` that lands after platform setup must push the hub's
+        # firmware/serial into the registry itself — otherwise the device page
+        # stays blank until the next reload.
+        registry = dr.async_get(hass)
+        device = registry.async_get_device(identifiers={(DOMAIN, f"bloc_cvc_{entry.entry_id}")})
+        if device is None:
+            return
+        registry.async_update_device(
+            device.id,
+            sw_version=store.hub_sw_version,
+            serial_number=store.hub_serial,
+            model_id=store.hub_model_id,
+        )
+
     async def on_message(topic: str, payload: bytes) -> None:
         store.last_mqtt_message_at = datetime.now(UTC)
         async_delete_mqtt_stale_issue(hass, entry.entry_id)
@@ -222,6 +242,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
             text = payload.decode("utf-8", errors="ignore")
         except Exception:
             _LOGGER.debug("MQTT payload decode failed for topic=%s", topic, exc_info=True)
+            return
+
+        if topic == topic_info(prefix):
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError:
+                _LOGGER.debug("Invalid JSON on topic=%s", topic)
+                return
+            store.hub_sw_version, store.hub_serial, store.hub_model_id = parse_hub_info(data)
+            _refresh_hub_identity()
             return
 
         if topic == topic_zones(prefix):
@@ -308,6 +338,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EureviaRegateConfigEntry
 
     try:
         await client.start()
+        await client.subscribe(topic_info(prefix))
         await client.subscribe(topic_zones(prefix))
         await client.subscribe(topic_zigbee_devices(prefix))
         await client.subscribe(topic_hvac_devices(prefix))
