@@ -27,7 +27,7 @@ def setup_dynamic_entities[EntityT: Entity](
     async_add_entities(build_entities(), update_before_add=False)
 
     @callback
-    def _refresh() -> None:
+    def _refresh(*_args: object) -> None:
         async_add_entities(build_entities(), update_before_add=False)
 
     for signal_name in signal_names:
