@@ -12,9 +12,7 @@ def _setup():
     async_add_entities = MagicMock()
     build_entities = MagicMock(return_value=[])
 
-    setup_dynamic_entities(
-        hass, entry, async_add_entities, build_entities, ("signal",)
-    )
+    setup_dynamic_entities(hass, entry, async_add_entities, build_entities, ("signal",))
     # async_dispatcher_connect(hass, signal, _refresh) -> _refresh is 3rd arg
     import eurevia_regate_rsmart.platforms.helpers as helpers
 
