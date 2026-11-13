@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.5.1...v1.5.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **platforms:** tolerate dispatcher payload in dynamic refresh ([dadecec](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/commit/dadecec93535ab2f72245036d9bab67b65f74742))
+
 ## [1.5.1](https://github.com/cyrilcolinet/eurevia-regate-rsmart-integration-hass/compare/v1.5.0...v1.5.1) (2026-10-21)
 
 
