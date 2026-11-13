@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 DOMAIN = "eurevia_regate_rsmart"
 NAME = "Eurevia reGATE (rSmart)"
 LOGGER = "custom_components.eurevia_regate_rsmart"
@@ -9,7 +11,10 @@ LOGGER = "custom_components.eurevia_regate_rsmart"
 CONF_HOST = "host"
 CONF_PORT = "port"
 CONF_PREFIX = "prefix"
+CONF_USERNAME = "username"
+CONF_PASSWORD = "password"
 CONF_ZONES = "zones"
+CONF_COOLING = "cooling"
 CONF_TELEMETRY = "telemetry"
 CONF_TELEMETRY_ONBOARDING = "telemetry_onboarding_shown"
 
@@ -35,6 +40,10 @@ def topic_zones(prefix: str) -> str:
     return f"{prefix}/zones"
 
 
+def topic_info(prefix: str) -> str:
+    return f"{prefix}/info"
+
+
 def topic_zigbee_devices(prefix: str) -> str:
     return f"{prefix}/zigbee/devices"
 
@@ -53,3 +62,22 @@ def parse_hvac_device_id(topic: str, prefix: str) -> str | None:
     if not topic.startswith(base) or topic.endswith("/set"):
         return None
     return topic[len(base) :]
+
+
+def parse_hub_info(payload: Any) -> tuple[str | None, str | None, str | None]:
+    """Pull (sw_version, serial, model_id) from a retained `{prefix}/info` payload.
+
+    `versionSw` is the hub software version users see; `uid` is the stable
+    hardware id (the hex suffix of the box hostname). The `serial` field is a
+    `"000000"` placeholder on real units, so it is deliberately ignored.
+    """
+    if not isinstance(payload, dict):
+        return None, None, None
+
+    def _clean(key: str) -> str | None:
+        value = payload.get(key)
+        if not isinstance(value, str):
+            return None
+        return value.strip() or None
+
+    return _clean("versionSw"), _clean("uid"), _clean("model")

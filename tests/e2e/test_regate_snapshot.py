@@ -62,9 +62,9 @@ def test_zone_mappings_from_snapshot(regate_snapshot, hvac_raw, hvac_id_to_th_id
     assert zone_key_to_hvac_id["zone_alpha"] == "101"
     assert zone_key_to_hvac_id["zone_beta"] == "102"
     assert zone_key_to_hvac_id["zone_gamma"] == "103"
-    assert read_active_setpoint(zone_state["zone_alpha"]) == 20.0
-    assert read_active_setpoint(zone_state["zone_beta"]) == 18.0
-    assert read_active_setpoint(zone_state["zone_gamma"]) == 24.0
+    assert read_active_setpoint(zone_state["zone_alpha"], cooling_active=False) == 20.0
+    assert read_active_setpoint(zone_state["zone_beta"], cooling_active=False) == 18.0
+    assert read_active_setpoint(zone_state["zone_gamma"], cooling_active=True) == 24.0
 
 
 def test_setpoint_write_payloads_per_mode(hvac_raw):
@@ -72,9 +72,18 @@ def test_setpoint_write_payloads_per_mode(hvac_raw):
     zone_beta = hvac_raw["102"]
     zone_gamma = hvac_raw["103"]
 
-    assert write_setpoint_payload(zone_alpha, 21.0) == {"Mode": MODE_COMFORT, "Stp_Comf": 21.0}
-    assert write_setpoint_payload(zone_beta, 17.0) == {"Mode": MODE_ECO, "Stp_Eco_H": 17.0}
-    assert write_setpoint_payload(zone_gamma, 23.0) == {"Mode": MODE_REDUCED, "Stp_Reduc_C": 23.0}
+    assert write_setpoint_payload(zone_alpha, 21.0, cooling_active=False) == {
+        "Mode": MODE_COMFORT,
+        "Stp_Comf": 21.0,
+    }
+    assert write_setpoint_payload(zone_beta, 17.0, cooling_active=False) == {
+        "Mode": MODE_ECO,
+        "Stp_Eco_H": 17.0,
+    }
+    assert write_setpoint_payload(zone_gamma, 23.0, cooling_active=True) == {
+        "Mode": MODE_REDUCED,
+        "Stp_Reduc_C": 23.0,
+    }
 
 
 def test_number_entities_match_snapshot_keys(hvac_raw):

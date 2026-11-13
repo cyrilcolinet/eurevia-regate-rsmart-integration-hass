@@ -31,6 +31,30 @@ def _pack_str(s: str) -> bytes:
     return len(b).to_bytes(2, "big") + b
 
 
+def build_connect_packet(
+    client_id: str,
+    keepalive: int,
+    username: str | None = None,
+    password: str | None = None,
+) -> bytes:
+    """Build an MQTT 3.1.1 CONNECT packet (clean session, QoS0).
+
+    Byte-identical to the anonymous form when no username is given. Password is
+    only honoured alongside a username (MQTT-3.1.2-22 forbids password-only).
+    """
+    flags = 0x02  # clean session
+    payload = _pack_str(client_id)
+    if username:
+        flags |= 0x80
+        payload += _pack_str(username)
+        if password:
+            flags |= 0x40
+            payload += _pack_str(password)
+
+    varhdr = _pack_str("MQTT") + bytes([4, flags]) + int(keepalive).to_bytes(2, "big")
+    return bytes([0x10]) + _enc_varint(len(varhdr) + len(payload)) + varhdr + payload
+
+
 async def _read_exact(reader: asyncio.StreamReader, n: int) -> bytes:
     return await reader.readexactly(n)
 
@@ -55,6 +79,8 @@ class MqttConnInfo:
     port: int
     client_id: str
     keepalive: int = 30
+    username: str | None = None
+    password: str | None = None
 
 
 class SimpleMqttClient:
@@ -313,14 +339,14 @@ class SimpleMqttClient:
         return pid
 
     async def _send_connect(self) -> None:
-        proto_name = _pack_str("MQTT")
-        proto_level = bytes([4])
-        connect_flags = bytes([0x02])  # clean session
-        keepalive = int(self._info.keepalive).to_bytes(2, "big")
-        varhdr = proto_name + proto_level + connect_flags + keepalive
-        payload = _pack_str(self._info.client_id)
-        fixed = bytes([0x10]) + _enc_varint(len(varhdr) + len(payload))
-        await self._write(fixed + varhdr + payload)
+        await self._write(
+            build_connect_packet(
+                self._info.client_id,
+                self._info.keepalive,
+                self._info.username,
+                self._info.password,
+            )
+        )
 
     async def _read_connack(self) -> None:
         if not self._reader:

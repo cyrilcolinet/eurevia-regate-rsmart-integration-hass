@@ -7,20 +7,9 @@ from typing import Any
 from .setpoints import resolve_zone_hvac_action
 
 
-def aggregate_zone_hvac_action(states: list[dict[str, Any]]) -> str:
-    active: list[str] = []
+def aggregate_zone_hvac_action(states: list[dict[str, Any]], *, cooling_active: bool) -> str:
+    """Global action from zone states. Heat/cool is a single installation axis (system PAC)."""
     for state in states:
-        if not state:
-            continue
-        action = resolve_zone_hvac_action(state)
-        if action != "off":
-            active.append(action)
-    if not active:
-        return "off"
-    if all(action == "heat" for action in active):
-        return "heat"
-    if all(action == "cool" for action in active):
-        return "cool"
-    if "heat" in active and "cool" in active:
-        return "heat_cool"
-    return active[0]
+        if state and resolve_zone_hvac_action(state, cooling_active=cooling_active) != "off":
+            return "cool" if cooling_active else "heat"
+    return "off"
